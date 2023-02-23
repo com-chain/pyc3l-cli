@@ -1,7 +1,6 @@
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 from datetime import datetime, timedelta
-import numpy as np
 import time
 
 # Load the API
@@ -42,8 +41,6 @@ for counter in range(number):
     
 # output result
 total_block = len(blocks)
-delta_times = np.array(dt)
-average_dt = np.sum(delta_times)/total_block
 
-print('During the '+str(test_duration)+' min run '+str(total_block)+' blocks where added average delay ='+str(average_dt)+' s.')
+print('During the '+str(test_duration)+' min run '+str(total_block)+' blocks where added average delay ='+str(sum(dt)/total_block)+' s.')
 
