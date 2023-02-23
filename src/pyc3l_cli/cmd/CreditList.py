@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # coding: utf-8
 
-from pyc3l.LocalAccountOpener import LocalAccountOpener
+from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 import sys
