@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pyc3l"
-version = "%%version%%"
+name = "pyc3l-cli"
+dynamic = ["version"]
 authors = [
-  { name="Florian Dubath", email="florian.dubath@unige.ch" },
+  { name="Florian Dubath", email="florian@dubath.org" },
 ]
 description = "ComChain API client library"
 readme = "README.md"
@@ -17,11 +17,20 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "ecdsa",
-  "web3",
-  "requests",
-  "eth_account",
+  "pyc3l",
+  "click",
 ]
+
 [project.urls]
-"Homepage" = "https://github.com/com-chain/pyc3l"
-"Bug Tracker" = "https://github.com/com-chain/pyc3l/issues"
+"Homepage" = "https://github.com/com-chain/pyc3l-cli"
+"Bug Tracker" = "https://github.com/com-chain/pyc3l-cli/issues"
+
+[project.scripts]
+pyc3l = "pyc3l_cli.cli:cli"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
+
