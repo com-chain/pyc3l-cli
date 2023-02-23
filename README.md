@@ -1,31 +1,26 @@
-# pyc3l
+# pyc3l-cli
 
-[![Latest Pypi Version](http://img.shields.io/pypi/v/pyc3l.svg?style=flat)](https://pypi.python.org/pypi/pyc3l/)
+[![Latest Pypi Version](http://img.shields.io/pypi/v/pyc3l-cli.svg?style=flat)](https://pypi.python.org/pypi/pyc3l-cli/)
 
-This project allow to create python scripts communicating with the
-ComChain API.
+This project offer a command line interface for interacting with
+[ComChain](https://com-chain.org/) from the shell.
 
 ## Maturity
 
-This code is in alpha stage. It wasn't tested on Windows. API may change.
+This code is in alpha stage. It wasn't tested on Windows.
 This is more a draft for an ongoing reflection.
 
 ## Features
 
-using ``pyc3l``:
+using ``pyc3l-cli``:
 
 -
 
 ## Requirement
 
-This code is for python3 and uses:
+This code is for python3 and uses ``tkinter``
 
-- eth_account
-- web3
-- ecdsa
-- tkinter
-
-You can check if tkinter is installed: open python3 and type:
+You can check if tkinter is installed by running ``python3`` and typing:
 
 ```
 >>> import tkinter
@@ -34,11 +29,11 @@ You can check if tkinter is installed: open python3 and type:
 
 ## Installation
 
-You don't need to download the git version of the code as ``pyc3l`` is
+You don't need to download the git version of the code as ``pyc3l-cli`` is
 available on the PyPI. So you should be able to run:
 
 ```bash
-pip install pyc3l
+pip install pyc3l-cli
 ```
 
 If you have downloaded the GIT sources, then you could add install
@@ -52,31 +47,47 @@ And if you don't have the GIT sources but would like to get the latest
 master or branch from github, you could also::
 
 ```
-pip install git+https://github.com/0k/pyc3l
+pip install git+https://github.com/com-chain/pyc3l-cli
 ```
 
 Or even select a specific revision (branch/tag/commit)::
 
 ```
-pip install git+https://github.com/0k/pyc3l@master
+pip install git+https://github.com/com-chain/pyc3l-cli@master
 ```
 
 ## Usage
 
-TBD
+
+### Logging
+
+```bash
+PYC3L_CLI_DEBUG=1 pyc3l [COMMAND] ...
+```
+
+or
+
+```bash
+pyc3l -d [COMMAND] ...
+```
+
+
+or 
+
+```bash
+pyc3l --log-handler pyc3l:DEBUG [COMMAND] ...
+```
+
+All debugging on:
+
+```bash
+pyc3l --log-handler :DEBUG [COMMAND] ...
+```
 
 ## Contributing
 
 Any suggestions or issues are welcome. Push requests are very welcome,
 please check out the guidelines.
-
-### Test
-
-To run the tests::
-
-```
-python3 -m unittest test.test_ApiCommunication
-```
 
 ### Push Request Guidelines
 
@@ -103,5 +114,5 @@ shows you how to deal with your issue.
 
 ## License
 
-Licensed under the [GNU Affero General Public License](GNU Affero
-General Public License: http://raw.github.com/0k/pyc3l/master/LICENSE)
+Licensed under the [GNU Affero General Public
+License](http://raw.github.com/com-chain/pyc3l-cli/master/LICENSE)
