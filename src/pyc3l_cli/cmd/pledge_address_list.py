@@ -16,22 +16,22 @@ def openKeyListFile():
 
 def main():
 
-    # Load the API
+    # load API
     api_handling = ApiHandling()
     # refresh the node list
     api_handling.updateNodeRepo()
 
-    # Open the admin account
+    # open the admin account
     account_opener = LocalAccountOpener()
     server, admin_account = account_opener.openAccountInteractively('open admin account',account_file='')
 
-    #open the list of account to process
+    # open the list of account to process
     publics = openKeyListFile()
 
     # get the amount to be pledged
     amount  = int(input("Amount to be pledged: "))
       
-    #load the high level functions
+    # load the high level functions
     api_com = ApiCommunication(api_handling, server)
     
     print('------------- PROCESSING ------------------------')
@@ -52,7 +52,7 @@ def main():
 
         print(' - done with '+public)
         
-        # Wite the next block
+        # write the next block
         while not api_com.hasChangedBlock():
             time.sleep( 5 )
 
