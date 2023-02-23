@@ -1,4 +1,4 @@
-from pyc3l.LocalAccountOpener import LocalAccountOpener
+from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 
