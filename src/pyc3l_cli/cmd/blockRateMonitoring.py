@@ -6,8 +6,6 @@ import time
 # Load the API
 api_handling = ApiHandling()
 
-# refresh the node list
-api_handling.updateNodeRepo()
 
 
 #load the high level functions

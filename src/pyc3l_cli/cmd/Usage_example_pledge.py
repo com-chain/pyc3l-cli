@@ -6,11 +6,6 @@ from pyc3l.ApiCommunication import ApiCommunication
 api_handling = ApiHandling()
 
 
-# refresh the node list
-api_handling.updateNodeRepo()
-
-
-
 account_opener = LocalAccountOpener()
 server, admin_account = account_opener.openAccountInteractively('open admin account',account_file='')
 

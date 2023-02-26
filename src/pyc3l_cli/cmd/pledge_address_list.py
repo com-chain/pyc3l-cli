@@ -18,8 +18,6 @@ def main():
 
     # load API
     api_handling = ApiHandling()
-    # refresh the node list
-    api_handling.updateNodeRepo()
 
     # open the admin account
     account_opener = LocalAccountOpener()

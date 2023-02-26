@@ -111,9 +111,6 @@ if not input('Continue to the execution (y/n)')=='y':
 # Load the API
 api_handling = ApiHandling()
 
-# refresh the node list
-api_handling.updateNodeRepo()
-
 account_opener = LocalAccountOpener()
 server, sender_account = account_opener.openAccountInteractively('Select Sender Wallet',account_file=account_file, password=password)
 

@@ -5,10 +5,6 @@ from pyc3l.ApiCommunication import ApiCommunication
 # Load the API
 api_handling = ApiHandling()
 
-# refresh the node list
-api_handling.updateNodeRepo()
-
-
 account_opener = LocalAccountOpener()
 server, sender_account = account_opener.openAccountInteractively('open sender account',account_file='')
 

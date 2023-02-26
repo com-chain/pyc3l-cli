@@ -108,10 +108,6 @@ if not input('Continue to the execution (y/n)')=='y':
 print('INFO: Load the API.')
 api_handling = ApiHandling()
 
-# refresh the node list
-print('INFO: refresh the node list.')
-api_handling.updateNodeRepo()
-
 account_opener = LocalAccountOpener()
 server, sender_account = account_opener.openAccountInteractively('Select Admin Wallet',account_file=account_file, password=password)
 
