@@ -5,10 +5,11 @@ from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 import sys
-import csv
 import time
 import tkinter as tk  #python3 only
 from tkinter import filedialog
+
+from pyc3l_cli.common import readCSV
 
 ###############################################################################
 ## Parametrization
@@ -28,40 +29,6 @@ password=''
 
 ###############################################################################
 
-def readCSV(file_path):
-    header=[]
-    data=[]
-
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        length=0
-        for row in csv_reader:
-
-            if line_count == 0:
-                length=len(row)
-                header=[item.replace('"','').strip() for item in row]
-            else:
-                if len(row)>length:
-                    new_row=[]
-                    in_str=False
-                    for item in row:
-
-                        if not in_str:
-                            new_row.append(item)
-                            if item.count('"')==1:
-                                in_str=True
-                        else:
-                            new_row[-1]= new_row[-1] + ','+item
-                            if item.count('"')==1:
-                                    in_str=False
-                    row=new_row
-
-                row = [item.replace('"','').strip() for item in row]
-                data.append(row)
-            line_count += 1
-    return header, data
-    
 def prepareTransactionData(header, data, address_column='Address',
                            amount_column='Montant',
                            message_to='Libellé envoyé',
@@ -81,19 +48,12 @@ def prepareTransactionData(header, data, address_column='Address',
 
     return prepared_transactions, total
 
-def getCsvFile(csv_file):
-    if len(csv_file)==0:
-            tk().withdraw()
-            return filedialog.askopenfilename(title = 'Choose a CSV File')
-    else:
-        return csv_file
-
-
 
 ################################################################################
 ##     (1) CSV file handling
 ################################################################################
-csv_file = getCsvFile(csv_file)
+if not csv_file:
+    csv_file = filedialog.askopenfilename(title='Choose a CSV file')
 header, data=readCSV(csv_file)
 prepared_transactions, total = prepareTransactionData(header, data)
 
