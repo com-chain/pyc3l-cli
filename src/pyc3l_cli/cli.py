@@ -57,6 +57,15 @@ class Pyc3lCLI(click.MultiCommand):
             except ImportError:
                 raise Exception("Failed to load command %r" % name)
 
+            if hasattr(mod, "run"):
+                try:
+                    return mod.run(parent=ctx)
+                except Exception as e:
+                    if sub_ctx._debug:
+                        raise
+                    sub_ctx.err(str(e))
+                    sub_ctx.stderr("  (You can provide ``--debug`` or ``-d`` to show full traceback)")
+                    return 1
         return cmd
 
 
