@@ -21,6 +21,9 @@ class Environment:
             msg %= args
         click.echo(msg, file=sys.stderr)
 
+    def err(self, msg, *args):
+        self.stderr(click.style("Error: ", fg='red', bold=True) + msg, *args)
+
     def verbose(self, msg, *args):
         """Logs a message to stderr only if verbose is enabled."""
         if self._verbose:
