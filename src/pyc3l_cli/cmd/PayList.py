@@ -6,11 +6,10 @@ import sys
 import time
 import re
 import os.path
-import tkinter
 
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
-from pyc3l_cli.common import readCSV, file_get_contents
+from pyc3l_cli.common import readCSV, file_get_contents, filepicker
 from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 
 
@@ -60,10 +59,7 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     ################################################################################
     ##     (1) CSV file handling
     ################################################################################
-    if not csv_data_file:
-        csv_data_file = tkinter.filedialog.askopenfilename(title='Choose a CSV file')
-        if not csv_data_file:
-            exit(1)
+    csv_data_file = csv_data_file or filepicker('Choose a CSV file')
     header, data=readCSV(csv_data_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
