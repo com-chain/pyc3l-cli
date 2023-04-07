@@ -1,34 +1,42 @@
 #!/usr/bin/python3
 
+
+import click
+import getpass
+import time
+import json
+
 from pyc3l_cli import common
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 
-import time
-import json
-import getpass
 
-
-def main():
+@click.command()
+@click.option("-w", "--wallet-file", help="wallet path")
+@click.option("-p", "--password-file", help="wallet password path")
+@click.option("-d", "--json-data-file", help="JSON data path")
+@click.argument('amount', type=int, required=False)
+def run(wallet_file, password_file, json_data_file, amount):
 
     # load API
     api_handling = ApiHandling()
 
-    wallet_file = common.filepicker('Select Admin Wallet')
+    wallet_file = wallet_file or common.filepicker('Select Admin Wallet')
     wallet = common.load_wallet(wallet_file)
 
-    password = getpass.getpass()
+    password = common.load_password(password_file) if password_file else getpass.getpass()
     account = common.unlock_account(wallet, password)
 
     # open the list of account to process
     publics = json.loads(
         common.file_get_contents(
+            json_data_file or
             common.filepicker("Select the file containing the list of accounts to process")
         )
     )
 
     # get the amount to be pledged
-    amount  = int(input("Amount to be pledged: "))
+    amount  = amount or int(input("Amount to be pledged: "))
 
     #load the high level functions
     api_com = ApiCommunication(api_handling, wallet['server']['name'])
@@ -56,4 +64,6 @@ def main():
 
     print('------------- END PROCESSING ------------------------')
 
-main()
+
+if __name__ == "__main__":
+    run()
