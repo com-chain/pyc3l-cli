@@ -4,13 +4,11 @@
 import click
 import sys
 import time
-import re
-import os.path
+import getpass
 
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
-from pyc3l_cli.common import readCSV, file_get_contents, filepicker
-from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
+from pyc3l_cli import common
 
 
 
@@ -59,8 +57,8 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     ################################################################################
     ##     (1) CSV file handling
     ################################################################################
-    csv_data_file = csv_data_file or filepicker('Choose a CSV file')
-    header, data=readCSV(csv_data_file)
+    csv_data_file = csv_data_file or common.filepicker('Choose a CSV file')
+    header, data=common.readCSV(csv_data_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
     print('The file "'+csv_data_file+'" has been read.')
@@ -77,31 +75,19 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     # Load the API
     api_handling = ApiHandling()
 
-    account_opener = LocalAccountOpener()
-    password = None
-    if password_file:
-        if not os.path.exists(password_file):
-            click.echo("%s: %s" % (
-                click.style("Error", fg='red', bold=True),
-                f"Error: Provided password file {password_file!r} doesn't exist"
-            ))
-            exit(1)
-        password = file_get_contents(password_file)
-        password = re.sub(r'\r?\n?$', '', password)  ## remove ending newline if any
+    wallet_file = wallet_file or common.filepicker('Select Admin Wallet')
+    wallet = common.load_wallet(wallet_file)
 
-    server, sender_account = account_opener.openAccountInteractively(
-        'Select Sender Wallet',
-        account_file=wallet_file,
-        password=password
-    )
+    password = common.load_password(password_file) if password_file else getpass.getpass()
+    account = common.unlock_account(wallet, password)
 
     #load the high level functions
-    api_com = ApiCommunication(api_handling, server)
+    api_com = ApiCommunication(api_handling, wallet['server']['name'])
 
-    CM_balance=api_com.getAccountCMBalance(sender_account.address)
-    CM_limit=api_com.getAccountCMLimitMinimum(sender_account.address)
-    Nant_balance = api_com.getAccountNantBalance(sender_account.address)
-    Sender_status = api_com.getAccountStatus(sender_account.address)
+    CM_balance=api_com.getAccountCMBalance(account.address)
+    CM_limit=api_com.getAccountCMLimitMinimum(account.address)
+    Nant_balance = api_com.getAccountNantBalance(account.address)
+    Sender_status = api_com.getAccountStatus(account.address)
 
     if Sender_status!=1:
         print("Error: The Sender Wallet is locked!")
@@ -171,12 +157,12 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     transaction_hash={}
     for tran in prepared_transactions:
         if tran['unlocked']==1 and tran['type']=='N':
-            res, r = api_com.transfertNant(sender_account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
+            res, r = api_com.transfertNant(account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
             transaction_hash[res]=tran['add']
             print("Transaction Nant sent to "+tran['add'])
             time.sleep( delay ) # Delay for not overloading the BlockChain
         elif  tran['unlocked']==1 and tran['type']=='CM':
-            res, r = api_com.transfertCM(sender_account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
+            res, r = api_com.transfertCM(account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
             transaction_hash[res]=tran['add']
             print("Transaction CM sent to "+tran['add'])
             time.sleep( delay ) # Delay for not overloading the BlockChain

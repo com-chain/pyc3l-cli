@@ -1,4 +1,6 @@
-from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
+import getpass
+
+from pyc3l_cli import common
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 
@@ -6,31 +8,35 @@ from pyc3l.ApiCommunication import ApiCommunication
 api_handling = ApiHandling()
 
 
-account_opener = LocalAccountOpener()
-server, admin_account = account_opener.openAccountInteractively('open admin account',account_file='')
+wallet_file = common.filepicker('Select Admin Wallet')
+wallet = common.load_wallet(wallet_file)
+
+password = getpass.getpass()
+account = common.unlock_account(wallet, password)
+
 
 address_test_lock = '0xE00000000000000000000000000000000000000E'
 
 
 #load the high level functions
-api_com = ApiCommunication(api_handling, server)
+api_com = ApiCommunication(api_handling, wallet['server']['name'])
 
 status = api_com.getAccountStatus(address_test_lock)
 print( 'Account '+address_test_lock+' is currently actif = ' + str(status))
 print('Balance = '+str(api_com.getAccountGlobalBalance(address_test_lock)))
 
 
-res, r = api_com.lockUnlockAccount(admin_account, address_test_lock, lock=False)
+res, r = api_com.lockUnlockAccount(account, address_test_lock, lock=False)
 print(res)
 print(r.text)
 print("")
 
-res, r = api_com.pledgeAccount(admin_account, address_test_lock, 0.01)
+res, r = api_com.pledgeAccount(account, address_test_lock, 0.01)
 print(res)
 print(r.text)
 print("")
 
-res, r = api_com.lockUnlockAccount(admin_account, address_test_lock, lock=True)
+res, r = api_com.lockUnlockAccount(account, address_test_lock, lock=True)
 print(res)
 print(r.text)
 print("")

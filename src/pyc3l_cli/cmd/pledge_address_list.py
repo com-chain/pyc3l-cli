@@ -1,17 +1,12 @@
 #!/usr/bin/python3
-from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
+
+from pyc3l_cli import common
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 
 import time
-
-# load the account list to be processed
-def openKeyListFile():
-    file_path = filedialog.askopenfilename(title = "Select the file containing the list of accounts to process")
-    file_list = open(file_path, 'r') 
-    file_content = file_list.read() 
-    key_list = json.loads(file_content)
-    return key_list
+import json
+import getpass
 
 
 def main():
@@ -19,18 +14,25 @@ def main():
     # load API
     api_handling = ApiHandling()
 
-    # open the admin account
-    account_opener = LocalAccountOpener()
-    server, admin_account = account_opener.openAccountInteractively('open admin account',account_file='')
+    wallet_file = common.filepicker('Select Admin Wallet')
+    wallet = common.load_wallet(wallet_file)
+
+    password = getpass.getpass()
+    account = common.unlock_account(wallet, password)
 
     # open the list of account to process
-    publics = openKeyListFile()
+    publics = json.loads(
+        common.file_get_contents(
+            common.filepicker("Select the file containing the list of accounts to process")
+        )
+    )
 
     # get the amount to be pledged
     amount  = int(input("Amount to be pledged: "))
+
+    #load the high level functions
+    api_com = ApiCommunication(api_handling, wallet['server']['name'])
       
-    # load the high level functions
-    api_com = ApiCommunication(api_handling, server)
     
     print('------------- PROCESSING ------------------------')
     
@@ -42,11 +44,9 @@ def main():
         total = amount - bal 
 	
         if total>0:
-            res, r = api_com.lockUnlockAccount(admin_account, public, lock=False)
-            
-            res, r = api_com.pledgeAccount(admin_account, public, total)
-            
-            res, r = api_com.lockUnlockAccount(admin_account, public, lock=True)
+            res, r = api_com.lockUnlockAccount(account, public, lock=False)
+            res, r = api_com.pledgeAccount(account, public, total)
+            res, r = api_com.lockUnlockAccount(account, public, lock=True)
 
         print(' - done with '+public)
         
@@ -55,4 +55,5 @@ def main():
             time.sleep( 5 )
 
     print('------------- END PROCESSING ------------------------')
+
 main()

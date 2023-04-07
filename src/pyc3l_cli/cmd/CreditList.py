@@ -4,13 +4,11 @@
 import click
 import sys
 import time
-import re
-import os.path
+import getpass
 
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
-from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
-from pyc3l_cli.common import readCSV, file_get_contents, filepicker
+from pyc3l_cli import common
 
 
 @click.command()
@@ -55,8 +53,8 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm, *args, **k
     ################################################################################
     ##     (1) CSV file handling
     ################################################################################
-    csv_data_file = csv_data_file or filepicker('Choose a CSV file')
-    header, data=readCSV(csv_data_file)
+    csv_data_file = csv_data_file or common.filepicker('Choose a CSV file')
+    header, data=common.readCSV(csv_data_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
     print('The file "'+csv_data_file+'" has been read.')
@@ -74,32 +72,20 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm, *args, **k
     print('INFO: Load the API.')
     api_handling = ApiHandling()
 
-    password = None
-    if password_file:
-        if not os.path.exists(password_file):
-            click.echo("%s: %s" % (
-                click.style("Error", fg='red', bold=True),
-                f"Error: Provided password file {password_file!r} doesn't exist"
-            ))
-            exit(1)
-        password = file_get_contents(password_file)
-        password = re.sub(r'\r?\n?$', '', password)  ## remove ending newline if any
+    wallet_file = wallet_file or common.filepicker('Select Admin Wallet')
+    wallet = common.load_wallet(wallet_file)
 
-    account_opener = LocalAccountOpener()
-    server, sender_account = account_opener.openAccountInteractively(
-        'Select Admin Wallet',
-        account_file=wallet_file,
-        password=password
-    )
+    password = common.load_password(password_file) if password_file else getpass.getpass()
+    account = common.unlock_account(wallet, password)
 
     #load the high level functions
     print('INFO: load the high level functions.')
-    api_com = ApiCommunication(api_handling, server)
+    api_com = ApiCommunication(api_handling, wallet['server']['name'])
 
 
     print('INFO: Check the provided account to have admin role.')
-    api_com.checkAdmin(sender_account.address)
-    Sender_status = api_com.getAccountStatus(sender_account.address)
+    api_com.checkAdmin(account.address)
+    Sender_status = api_com.getAccountStatus(account.address)
 
     if Sender_status!=1:
         print("Error: The Admin Wallet is locked!")
@@ -132,7 +118,7 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm, *args, **k
     transaction_hash={}
     for tran in prepared_transactions:
         if tran['unlocked']==1:
-            res, r = api_com.pledgeAccount(sender_account, tran['add'], tran['amount'], message_to=tran['message']) 
+            res, r = api_com.pledgeAccount(account, tran['add'], tran['amount'], message_to=tran['message']) 
             transaction_hash[res]=tran['add']
             print("Transaction Nant sent to "+tran['add'] + ' ('+str(tran['amount'])+'LEM) with message "'+tran['message']+'" Transaction Hash='+ res)
 
