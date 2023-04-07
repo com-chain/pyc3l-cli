@@ -21,7 +21,7 @@ def run(wallet_file, password_file, json_data_file, amount):
     # load API
     api_handling = ApiHandling()
 
-    wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
+    wallet_file = wallet_file or common.filepicker("Select admin wallet")
     wallet = common.load_wallet(wallet_file)
 
     password = (
@@ -30,7 +30,7 @@ def run(wallet_file, password_file, json_data_file, amount):
     account = common.unlock_account(wallet, password)
 
     # open the list of account to process
-    publics = json.loads(
+    addresses = json.loads(
         common.file_get_contents(
             json_data_file
             or common.filepicker(
@@ -47,19 +47,19 @@ def run(wallet_file, password_file, json_data_file, amount):
 
     print("------------- PROCESSING ------------------------")
 
-    for public in publics:
-        status = api_com.getAccountStatus(public)
-        print("Status of " + public + " is " + str(status))
-        bal = api_com.getAccountGlobalBalance(public)
-        print("Balance of " + public + " is " + str(bal))
+    for address in addresses:
+        status = api_com.getAccountStatus(address)
+        print("Status of " + address + " is " + str(status))
+        bal = api_com.getAccountGlobalBalance(address)
+        print("Balance of " + address + " is " + str(bal))
         total = amount - bal
 
         if total > 0:
-            res, r = api_com.lockUnlockAccount(account, public, lock=False)
-            res, r = api_com.pledgeAccount(account, public, total)
-            res, r = api_com.lockUnlockAccount(account, public, lock=True)
+            res, r = api_com.lockUnlockAccount(account, address, lock=False)
+            res, r = api_com.pledgeAccount(account, address, total)
+            res, r = api_com.lockUnlockAccount(account, address, lock=True)
 
-        print(" - done with " + public)
+        print(" - done with " + address)
 
         # write the next block
         while not api_com.hasChangedBlock():
