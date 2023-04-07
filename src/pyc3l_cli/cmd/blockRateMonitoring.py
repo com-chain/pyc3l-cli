@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+"""Monitors block rate"""
+
+
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 from datetime import datetime, timedelta
