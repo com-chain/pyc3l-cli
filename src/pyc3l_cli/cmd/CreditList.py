@@ -59,6 +59,8 @@ def run(*args, **kwargs):
     ################################################################################
     if not csv_file:
         csv_file = tkinter.filedialog.askopenfilename(title='Choose a CSV file')
+        if not csv_file:
+            exit(1)
     header, data=readCSV(csv_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
