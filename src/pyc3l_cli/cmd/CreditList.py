@@ -10,13 +10,8 @@ import os.path
 
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
-from pyc3l_cli.common import readCSV
+from pyc3l_cli.common import readCSV, file_get_contents
 from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
-
-
-def file_get_contents(filename):
-    with open(filename, 'r') as f:
-        return f.read()
 
 
 @click.command()

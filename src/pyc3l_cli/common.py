@@ -2,6 +2,11 @@
 import csv
 
 
+def file_get_contents(filename):
+    with open(filename, 'r') as f:
+        return f.read()
+
+
 def readCSV(file_path):
     header=[]
     data=[]
