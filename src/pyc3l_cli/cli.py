@@ -41,7 +41,7 @@ class Pyc3lCLI(click.MultiCommand):
                       if filename.endswith(".py") and filename != "__init__.py")
 
     def get_command(self, ctx, name):
-
+        cmd = None
         @click.command(
             name,
             context_settings={
@@ -50,14 +50,13 @@ class Pyc3lCLI(click.MultiCommand):
         )
         @click.argument('args', nargs=-1)
         @pass_environment
-        def cmd(ctx, args):
+        def cmd(sub_ctx, args, **kwargs):
             try:
                 sys.argv = ["%s.py" % name, ] + list(args)
-                mod = __import__(f"pyc3l_cli.cmd.{name}", None, None, [])
+                mod = __import__(f"pyc3l_cli.cmd.{name}", None, None, ["run"])
             except ImportError:
                 raise Exception("Failed to load command %r" % name)
-
-            if hasattr(mod, "run"):
+            if hasattr(mod, "run") and callable(mod.run):
                 try:
                     return mod.run(parent=ctx)
                 except Exception as e:
