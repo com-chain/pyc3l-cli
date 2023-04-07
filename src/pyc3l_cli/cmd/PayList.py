@@ -2,15 +2,15 @@
 # coding: utf-8
 
 import click
-from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
-from pyc3l.ApiHandling import ApiHandling
-from pyc3l.ApiCommunication import ApiCommunication
 import sys
 import time
-import tkinter as tk  #python3 only
-from tkinter import filedialog
+import tkinter
 
+from pyc3l.ApiHandling import ApiHandling
+from pyc3l.ApiCommunication import ApiCommunication
 from pyc3l_cli.common import readCSV
+from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
+
 
 @click.command()
 def run(*args, **kwargs):
@@ -57,7 +57,7 @@ def run(*args, **kwargs):
     ##     (1) CSV file handling
     ################################################################################
     if not csv_file:
-        csv_file = filedialog.askopenfilename(title='Choose a CSV file')
+        csv_file = tkinter.filedialog.askopenfilename(title='Choose a CSV file')
     header, data=readCSV(csv_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
