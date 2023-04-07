@@ -75,7 +75,8 @@ class Pyc3lCLI(click.MultiCommand):
 @pass_environment
 def cli(ctx, verbose, debug, log_handler):
     """A Comchain API command line interface."""
-    ctx._verbose = verbose
+
+    ctx._verbose = verbose or debug
     ctx._debug = debug
 
     if debug and not log_handler:
