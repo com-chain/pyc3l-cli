@@ -23,7 +23,8 @@ def file_get_contents(filename):
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
-def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
+@click.option("-y", "--no-confirm", help="Bypass confirmation and always assume 'yes'", is_flag=True)
+def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
     """Batch transfer using CSV file
 
     """
@@ -72,7 +73,7 @@ def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
     print('The file "'+csv_data_file+'" has been read.')
     print('It contains '+str(len(prepared_transactions))+' transaction(s) for a total of '+str(total))
 
-    if not input('Continue to the execution (y/n)')=='y':
+    if not no_confirm and not input('Continue to the execution (y/n)') == 'y':
         sys.exit()
 
 
@@ -168,7 +169,7 @@ def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
         print("Error: Due to constraint on the target amount the splitting ("+str(total_nant)+"Nant + "+str(total_cm)+"CM) is not compatible with the available funds")
         sys.exit()          
 
-    if not input('Ready to send the payments: do you want to proceed? (y/n)')=='y':
+    if not no_confirm and not input('Ready to send payments ? (y/n)') == 'y':
         sys.exit()
 
     ################################################################################

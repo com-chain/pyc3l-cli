@@ -23,7 +23,8 @@ def file_get_contents(filename):
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
-def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
+@click.option("-y", "--no-confirm", help="Bypass confirmation and always assume 'yes'", is_flag=True)
+def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
     """Batch pledging using CSV file
 
     """
@@ -69,7 +70,7 @@ def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
     print('The file "'+csv_data_file+'" has been read.')
     print('It contains '+str(len(prepared_transactions))+' transaction(s) for a total of '+str(total))
 
-    if not input('Continue to the execution (y/n)')=='y':
+    if not no_confirm and not input('Continue to the execution (y/n)')=='y':
         sys.exit()
 
 
@@ -130,7 +131,7 @@ def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
         else:
             tran['unlocked']=1
 
-    if not input('Ready to send the nantissement on '+server+': do you want to proceed? (y/n)')=='y':
+    if not no_confirm and not input(f'Ready to pledge some {server} ? (y/n) ') == 'y':
         sys.exit()
 
     ################################################################################
