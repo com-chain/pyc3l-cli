@@ -18,8 +18,9 @@ from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
+@click.option("-D", "--delay", help="delay between blockchain request", default=15)
 @click.option("-y", "--no-confirm", help="Bypass confirmation and always assume 'yes'", is_flag=True)
-def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
+def run(wallet_file, password_file, csv_data_file, delay, no_confirm, *args, **kwargs):
     """Batch pledging using CSV file
 
     """
@@ -139,7 +140,7 @@ def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
             transaction_hash[res]=tran['add']
             print("Transaction Nant sent to "+tran['add'] + ' ('+str(tran['amount'])+'LEM) with message "'+tran['message']+'" Transaction Hash='+ res)
 
-            time.sleep( 30 ) # Delay for not overloading the BlockChain
+            time.sleep( delay ) # Delay for not overloading the BlockChain
 
         else :
             print("Transaction to "+tran['add'] + " skipped")

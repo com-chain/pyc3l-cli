@@ -19,8 +19,9 @@ from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
+@click.option("-D", "--delay", help="delay between blockchain request", default=15)
 @click.option("-y", "--no-confirm", help="Bypass confirmation and always assume 'yes'", is_flag=True)
-def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
+def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     """Batch transfer using CSV file
 
     """
@@ -177,12 +178,12 @@ def run(wallet_file, password_file, csv_data_file, no_confirm, *args, **kwargs):
             res, r = api_com.transfertNant(sender_account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
             transaction_hash[res]=tran['add']
             print("Transaction Nant sent to "+tran['add'])
-            time.sleep( 15 ) # Delay for not overloading the BlockChain
+            time.sleep( delay ) # Delay for not overloading the BlockChain
         elif  tran['unlocked']==1 and tran['type']=='CM':
             res, r = api_com.transfertCM(sender_account, tran['add'], tran['amount'], message_from=tran['m_from'], message_to=tran['m_to'])
             transaction_hash[res]=tran['add']
             print("Transaction CM sent to "+tran['add'])
-            time.sleep( 15 ) # Delay for not overloading the BlockChain
+            time.sleep( delay ) # Delay for not overloading the BlockChain
         else :
             print("Transaction to "+tran['add'] + " skipped")
 
