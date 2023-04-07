@@ -5,7 +5,8 @@ import click
 import sys
 import time
 import tkinter
-
+import re
+import os.path
 
 from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
@@ -13,26 +14,29 @@ from pyc3l_cli.common import readCSV
 from pyc3l_cli.LocalAccountOpener import LocalAccountOpener
 
 
+def file_get_contents(filename):
+    with open(filename, 'r') as f:
+        return f.read()
+
+
 @click.command()
-def run(*args, **kwargs):
+@click.option("-w", "--wallet-file", help="wallet path")
+@click.option("-p", "--password-file", help="wallet password path")
+@click.option("-d", "--csv-data-file", help="CSV data path")
+def run(wallet_file, password_file, csv_data_file, *args, **kwargs):
+    """Batch pledging using CSV file
+
+    """
 
     ###############################################################################
     ## Parametrization
     ###############################################################################
-    ## CSV File containing the transactions (if '' a file selector is open)
-    csv_file = ''
     ## Columns in the CSV file
     address_column='Address'
     amount_column='Montant'
     message_column='Message'
 
-    ## .dat File containing the wallet sending the funds (if '' a file selector is open)
-    account_file=''
-    ## password for unlocking the wallet (if '' the password is asked on the command line)
-    password=''
-
     ###############################################################################
-
 
     def prepareTransactionData(header, data, address_column='Address',
                                amount_column='Montant', message_column='Message'):
@@ -52,19 +56,17 @@ def run(*args, **kwargs):
         return prepared_transactions, total
 
 
-
-
     ################################################################################
     ##     (1) CSV file handling
     ################################################################################
-    if not csv_file:
-        csv_file = tkinter.filedialog.askopenfilename(title='Choose a CSV file')
-        if not csv_file:
+    if not csv_data_file:
+        csv_data_file = tkinter.filedialog.askopenfilename(title='Choose a CSV file')
+        if not csv_data_file:
             exit(1)
-    header, data=readCSV(csv_file)
+    header, data=readCSV(csv_data_file)
     prepared_transactions, total = prepareTransactionData(header, data)
 
-    print('The file "'+csv_file+'" has been read.')
+    print('The file "'+csv_data_file+'" has been read.')
     print('It contains '+str(len(prepared_transactions))+' transaction(s) for a total of '+str(total))
 
     if not input('Continue to the execution (y/n)')=='y':
@@ -79,8 +81,23 @@ def run(*args, **kwargs):
     print('INFO: Load the API.')
     api_handling = ApiHandling()
 
+    password = None
+    if password_file:
+        if not os.path.exists(password_file):
+            click.echo("%s: %s" % (
+                click.style("Error", fg='red', bold=True),
+                f"Error: Provided password file {password_file!r} doesn't exist"
+            ))
+            exit(1)
+        password = file_get_contents(password_file)
+        password = re.sub(r'\r?\n?$', '', password)  ## remove ending newline if any
+
     account_opener = LocalAccountOpener()
-    server, sender_account = account_opener.openAccountInteractively('Select Admin Wallet',account_file=account_file, password=password)
+    server, sender_account = account_opener.openAccountInteractively(
+        'Select Admin Wallet',
+        account_file=wallet_file,
+        password=password
+    )
 
     #load the high level functions
     print('INFO: load the high level functions.')

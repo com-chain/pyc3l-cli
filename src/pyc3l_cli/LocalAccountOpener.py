@@ -18,7 +18,7 @@ class LocalAccountOpener:
 
     # load account from file and password
     def openAccountInteractively(self, dialog_title, account_file='', password=''):
-        if len(account_file)==0:
+        if not account_file:
             account_file = filedialog.askopenfilename(title = dialog_title)
         file_admin = open(account_file, 'r') 
         keyfile = file_admin.read()   
@@ -28,7 +28,7 @@ class LocalAccountOpener:
         logger.info('  File contains wallet with address 0x%s on server %r',
                     acc_object['address'],
                     acc_object['server']['name'])
-        if len(password) ==0:
+        if not password:
             password = getpass.getpass()
 
         account_admin = Account.privateKeyToAccount(Account.decrypt(keyfile, password))
