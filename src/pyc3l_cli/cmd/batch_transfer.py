@@ -6,7 +6,6 @@ import sys
 import time
 import getpass
 
-from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 from pyc3l_cli import common
 
@@ -59,9 +58,6 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
     ##     (2) Load the account and check funds availability
     ################################################################################
 
-    # Load the API
-    api_handling = ApiHandling()
-
     wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
     wallet = common.load_wallet(wallet_file)
 
@@ -71,7 +67,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
     account = common.unlock_account(wallet, password)
 
     # load the high level functions
-    api_com = ApiCommunication(api_handling, wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"])
 
     CM_balance = api_com.getAccountCMBalance(account.address)
     CM_limit = api_com.getAccountCMLimitMinimum(account.address)

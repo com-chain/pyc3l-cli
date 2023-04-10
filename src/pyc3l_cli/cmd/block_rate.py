@@ -2,17 +2,12 @@
 """Monitors block rate"""
 
 
-from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 from datetime import datetime, timedelta
 import time
 
-# Load the API
-api_handling = ApiHandling()
-
-
 # load the high level functions
-api_com = ApiCommunication(api_handling, "Lemanopolis")
+api_com = ApiCommunication("Lemanopolis")
 
 
 # configure run

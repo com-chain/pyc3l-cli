@@ -5,7 +5,6 @@ import click
 import getpass
 
 from pyc3l_cli import common
-from pyc3l.ApiHandling import ApiHandling
 from pyc3l.ApiCommunication import ApiCommunication
 
 
@@ -13,9 +12,6 @@ from pyc3l.ApiCommunication import ApiCommunication
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 def run(wallet_file, password_file):
-
-    # Load the API
-    api_handling = ApiHandling()
 
     wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
     wallet = common.load_wallet(wallet_file)
@@ -28,7 +24,7 @@ def run(wallet_file, password_file):
     target_address = "0xE00000000000000000000000000000000000000E"
 
     # load the high level functions
-    api_com = ApiCommunication(api_handling, wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"])
 
     print(
         "The sender wallet "

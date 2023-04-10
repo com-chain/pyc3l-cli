@@ -18,9 +18,6 @@ from pyc3l.ApiCommunication import ApiCommunication
 @click.argument("amount", type=int, required=False)
 def run(wallet_file, password_file, json_data_file, amount):
 
-    # load API
-    api_handling = ApiHandling()
-
     wallet_file = wallet_file or common.filepicker("Select admin wallet")
     wallet = common.load_wallet(wallet_file)
 
@@ -43,7 +40,7 @@ def run(wallet_file, password_file, json_data_file, amount):
     amount = amount or int(input("Amount to be pledged: "))
 
     # load the high level functions
-    api_com = ApiCommunication(api_handling, wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"])
 
     print("------------- PROCESSING ------------------------")
 
