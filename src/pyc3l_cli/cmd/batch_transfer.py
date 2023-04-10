@@ -16,13 +16,14 @@ from pyc3l_cli import common
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
 @click.option("-D", "--delay", help="delay between blockchain request", default=15)
+@click.option("-W", "--wait", help="wait for integration in blockchain", is_flag=True)
 @click.option(
     "-y",
     "--no-confirm",
     help="Bypass confirmation and always assume 'yes'",
     is_flag=True,
 )
-def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
+def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
     """Batch transfer using CSV file"""
 
     ################################################################################
@@ -183,15 +184,34 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     ################################################################################
     ##     (5) Wait for confirmation
     ################################################################################
-    #
-    # while len(transaction_hash)>0:
-    #    hash_to_test = list(transaction_hash.keys())[0]
-    #    if api_com.getTransactionBLock(hash_to_test)!=None:
-    #        print("Transaction to "+transaction_hash[hash_to_test] + " has been mined")
-    #    else:
-    #        time.sleep( 15 )
 
-    # print("All transaction have been mined, bye!")
+    if not wait:
+        return
+
+    print("Waiting for all transaction to be mined:")
+    start = time.time()
+    while transaction_hash:
+        for h, address in list(transaction_hash.items()):
+            msg = f"  Transaction {h[0:8]} to {address[0:8]}"
+            if api_com.getTransactionBLock(h) is not None:
+                msg += " has been mined !"
+                del transaction_hash[h]
+            else:
+                msg += " still not mined"
+            elapsed = time.time() - start
+            h, remainder = divmod(elapsed, 3600)
+            m, s = divmod(remainder, 60)
+            msg += (
+                " (%s%s%s elapsed)" % (
+                    ("%02dh" % h if h else ""),
+                    ("%02dm" % m if m else ""),
+                    ("%02ds" % s),
+                )
+            )
+            print(msg)
+            time.sleep(5)
+
+    print("All transaction have been mined, bye!")
 
 
 if __name__ == "__main__":
