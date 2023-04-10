@@ -25,60 +25,31 @@ from pyc3l_cli import common
 def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     """Batch transfer using CSV file"""
 
-    ###############################################################################
-    ## Parametrization
-    ###############################################################################
-    ## Columns in the CSV file
-    address_column = "Address"
-    amount_column = "Montant"
-    message_to = "Libellé envoyé"
-    message_from = "Libellé gardé"
-
-    ###############################################################################
-
-    def prepareTransactionData(
-        header,
-        data,
-        address_column="Address",
-        amount_column="Montant",
-        message_to="Libellé envoyé",
-        message_from="Libellé gardé",
-    ):
-
-        add_ind = header.index(address_column)
-        ammount_ind = header.index(amount_column)
-        m_to_ind = header.index(message_to)
-        m_from_ind = header.index(message_from)
-
-        prepared_transactions = []
-        total = 0
-        for row in data:
-            prepared_transactions.append(
-                {
-                    "add": row[add_ind],
-                    "amount": float(row[ammount_ind]),
-                    "m_to": row[m_to_ind],
-                    "m_from": row[m_from_ind],
-                }
-            )
-            total += prepared_transactions[-1]["amount"]
-
-        return prepared_transactions, total
-
     ################################################################################
     ##     (1) CSV file handling
     ################################################################################
     csv_data_file = csv_data_file or common.filepicker("Choose a CSV file")
-    header, data = common.readCSV(csv_data_file)
-    prepared_transactions, total = prepareTransactionData(header, data)
 
-    print('The file "' + csv_data_file + '" has been read.')
-    print(
-        "It contains "
-        + str(len(prepared_transactions))
-        + " transaction(s) for a total of "
-        + str(total)
-    )
+    try:
+        transactions = list(map(
+            lambda r: {
+                "address": r["Addresse"],
+                "amount": float(r["Montant"]),
+                "message_to": r["Libellé envoyé"],
+                "message_from": r["Libellé gardé"],
+            },
+            common.readCSV(csv_data_file)
+        ))
+    except KeyError as e:
+        print(f"Error: column {e.args[0]!r} not found in given CSV file.")
+        sys.exit(1)
+
+    total = sum(t["amount"] for t in transactions)
+    print(f'The file {csv_data_file!r} has been read.')
+    print("It contains %s transaction(s) for a total of %s" % (
+        len(transactions),
+        total,
+    ))
 
     if not no_confirm and not input("Continue to the execution (y/n)") == "y":
         sys.exit()
@@ -128,16 +99,11 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
         print("Warning: Not enough fund for unsplited transactions")
         if total > CM_balance + CM_balance - CM_limit:
             print(
-                "Error: The Sender Wallet is underfunded: This batch of payment="
-                + str(total)
-                + " Nant balance="
-                + str(Nant_balance)
-                + " CM balance="
-                + str(CM_balance)
-                + " CM Limit="
-                + str(CM_limit)
+                "Error: The Sender Wallet is underfunded: " +
+                f"This batch of payment={total} Nant balance={Nant_balance}" +
+                f"CM balance={CM_balance} CM Limit={CM_limit}"
             )
-            sys.exit()
+            sys.exit(1)
         else:
             use_mix = True
 
@@ -147,49 +113,45 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
 
     total_cm = 0
     total_nant = 0
-    for tran in prepared_transactions:
-        target_address = tran["add"]
-        target_amount = tran["amount"]
-
-        target_status = api_com.getAccountStatus(target_address)
+    for t in transactions:
+        target_status = api_com.getAccountStatus(t['address'])
         if target_status != 1:
             print(
                 "Warning: The Target Wallet with address "
-                + target_address
+                + t['address']
                 + "is locked and will be skipped"
             )
-        else:
-            tran["unlocked"] = 1
-            if use_nant:
-                total_nant += target_amount
-                tran["type"] = "N"
-            else:
-                CM_target_balance = api_com.getAccountCMBalance(target_address)
-                CM_target_limit = api_com.getAccountCMLimitMaximum(target_address)
-                tran["canCM"] = target_amount + CM_target_balance < CM_target_limit
-                if tran["canCM"]:
-                    total_cm += target_amount
-                    tran["type"] = "CM"
-                else:
-                    total_nant += target_amount
-                    tran["type"] = "N"
-                    print(
-                        "Warning: The Target Wallet with address "
-                        + target_address
-                        + " cannot accept "
-                        + str(target_amount)
-                        + "in mutual credit (will try the nant.)"
-                    )
+            continue
+        t["unlocked"] = 1
+        if use_nant:
+            total_nant += t['amount']
+            t["type"] = "Nant"
+            continue
+
+        CM_target_balance = api_com.getAccountCMBalance(t['address'])
+        CM_target_limit = api_com.getAccountCMLimitMaximum(t['address'])
+        if t['amount'] + CM_target_balance < CM_target_limit:
+            total_cm += t['amount']
+            t["type"] = "CM"
+            continue
+
+        total_nant += t['amount']
+        t["type"] = "Nant"
+        print(
+            "Warning: The Target Wallet with address "
+            + t['address']
+            + " cannot accept "
+            + str(t['amount'])
+            + "in mutual credit (will try the nant.)"
+        )
 
     if total_nant > Nant_balance or total_cm > CM_balance - CM_limit:
         print(
-            "Error: Due to constraint on the target amount the splitting ("
-            + str(total_nant)
-            + "Nant + "
-            + str(total_cm)
-            + "CM) is not compatible with the available funds"
+            "Error: Due to constraint on the target amount the splitting " +
+            f"({total_nant} Nant + {total_cm} CM)" +
+            "is not compatible with the available funds"
         )
-        sys.exit()
+        sys.exit(1)
 
     if not no_confirm and not input("Ready to send payments ? (y/n)") == "y":
         sys.exit()
@@ -197,32 +159,24 @@ def run(wallet_file, password_file, csv_data_file, delay, no_confirm):
     ################################################################################
     ##     (4) Execute transactions
     ################################################################################
+
     transaction_hash = {}
-    for tran in prepared_transactions:
-        if tran["unlocked"] == 1 and tran["type"] == "N":
-            res, r = api_com.transfertNant(
-                account,
-                tran["add"],
-                tran["amount"],
-                message_from=tran["m_from"],
-                message_to=tran["m_to"],
-            )
-            transaction_hash[res] = tran["add"]
-            print("Transaction Nant sent to " + tran["add"])
-            time.sleep(delay)  # Delay for not overloading the BlockChain
-        elif tran["unlocked"] == 1 and tran["type"] == "CM":
-            res, r = api_com.transfertCM(
-                account,
-                tran["add"],
-                tran["amount"],
-                message_from=tran["m_from"],
-                message_to=tran["m_to"],
-            )
-            transaction_hash[res] = tran["add"]
-            print("Transaction CM sent to " + tran["add"])
-            time.sleep(delay)  # Delay for not overloading the BlockChain
-        else:
-            print("Transaction to " + tran["add"] + " skipped")
+    for t in transactions:
+        if t["unlocked"] != 1:
+            print(f"Transaction to {t['address']} skipped")
+            continue
+        res, r = getattr(api_com, f"transfert{t['type']}")(
+            account,
+            t["address"],
+            t["amount"],
+            message_from=t["message_from"],
+            message_to=t["message_to"],
+        )
+
+        transaction_hash[res] = t["address"]
+        print(f"Transaction {t['type']} sent to {t['address']}")
+        time.sleep(delay)  # Delay for not overloading the BlockChain
+
 
     print("All transaction have been sent, bye!")
 
