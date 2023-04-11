@@ -15,6 +15,8 @@ from pyc3l_cli import common
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--csv-data-file", help="CSV data path")
 @click.option("-D", "--delay", help="delay between blockchain request", default=15)
+@click.option("-e", "--endpoint",
+              help="Force com-chain endpoint.")
 @click.option("-W", "--wait", help="wait for integration in blockchain", is_flag=True)
 @click.option(
     "-y",
@@ -22,7 +24,7 @@ from pyc3l_cli import common
     help="Bypass confirmation and always assume 'yes'",
     is_flag=True,
 )
-def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
+def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_confirm):
     """Batch pledging using CSV file"""
 
     ################################################################################
@@ -63,7 +65,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
 
     # load the high level functions
     print("INFO: load the high level functions.")
-    api_com = ApiCommunication(wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
 
     print("INFO: Check the provided account to have admin role.")
     api_com.checkAdmin(account.address)
@@ -100,7 +102,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
             print(f"Transaction to {t['address']} skipped")
             continue
 
-        res, r = api_com.pledgeAccount(
+        res = api_com.pledgeAccount(
             account, t["address"], t["amount"], message_to=t["message"]
         )
         transaction_hash[res] = t["address"]

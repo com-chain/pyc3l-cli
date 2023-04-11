@@ -16,13 +16,15 @@ from pyc3l_cli import common
 @click.option("-d", "--csv-data-file", help="CSV data path")
 @click.option("-D", "--delay", help="delay between blockchain request", default=15)
 @click.option("-W", "--wait", help="wait for integration in blockchain", is_flag=True)
+@click.option("-e", "--endpoint",
+              help="Force com-chain endpoint.")
 @click.option(
     "-y",
     "--no-confirm",
     help="Bypass confirmation and always assume 'yes'",
     is_flag=True,
 )
-def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
+def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_confirm):
     """Batch transfer using CSV file"""
 
     ################################################################################
@@ -67,7 +69,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
     account = common.unlock_account(wallet, password)
 
     # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
 
     CM_balance = api_com.getAccountCMBalance(account.address)
     CM_limit = api_com.getAccountCMLimitMinimum(account.address)
@@ -162,7 +164,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, no_confirm):
         if t["unlocked"] != 1:
             print(f"Transaction to {t['address']} skipped")
             continue
-        res, r = getattr(api_com, f"transfert{t['type']}")(
+        res = getattr(api_com, f"transfert{t['type']}")(
             account,
             t["address"],
             t["amount"],

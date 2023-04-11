@@ -11,7 +11,9 @@ from pyc3l.ApiCommunication import ApiCommunication
 @click.command()
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
-def run(wallet_file, password_file):
+@click.option("-e", "--endpoint",
+              help="Force com-chain endpoint.")
+def run(wallet_file, password_file, endpoint):
 
     wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
     wallet = common.load_wallet(wallet_file)
@@ -24,7 +26,7 @@ def run(wallet_file, password_file):
     target_address = "0xE00000000000000000000000000000000000000E"
 
     # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
 
     print(
         "The sender wallet "
@@ -35,11 +37,10 @@ def run(wallet_file, password_file):
         + str(api_com.getAccountGlobalBalance(account.address))
     )
 
-    res, r = api_com.transfertNant(
+    res = api_com.transfertNant(
         account, target_address, 0.01, message_from="test", message_to="test"
     )
     print(res)
-    print(r.text)
     print("")
 
 

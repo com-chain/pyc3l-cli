@@ -15,8 +15,10 @@ from pyc3l.ApiCommunication import ApiCommunication
 @click.option("-w", "--wallet-file", help="wallet path")
 @click.option("-p", "--password-file", help="wallet password path")
 @click.option("-d", "--json-data-file", help="JSON data path")
-@click.argument("amount", type=int, required=False)
-def run(wallet_file, password_file, json_data_file, amount):
+@click.option("-e", "--endpoint",
+              help="Force com-chain endpoint.")
+@click.argument("amount", type=float, required=False)
+def run(wallet_file, password_file, json_data_file, endpoint, amount):
 
     wallet_file = wallet_file or common.filepicker("Select admin wallet")
     wallet = common.load_wallet(wallet_file)
@@ -40,7 +42,7 @@ def run(wallet_file, password_file, json_data_file, amount):
     amount = amount or int(input("Amount to be pledged: "))
 
     # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"])
+    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
 
     print("------------- PROCESSING ------------------------")
 
@@ -52,9 +54,9 @@ def run(wallet_file, password_file, json_data_file, amount):
         total = amount - bal
 
         if total > 0:
-            res, r = api_com.lockUnlockAccount(account, address, lock=False)
-            res, r = api_com.pledgeAccount(account, address, total)
-            res, r = api_com.lockUnlockAccount(account, address, lock=True)
+            api_com.lockUnlockAccount(account, address, lock=False)
+            api_com.pledgeAccount(account, address, total)
+            api_com.lockUnlockAccount(account, address, lock=True)
 
         print(" - done with " + address)
 
