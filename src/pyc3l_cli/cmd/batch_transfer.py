@@ -176,30 +176,10 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
         print(f"Transaction {t['type']} sent to {t['address']}")
         time.sleep(delay)  # Delay for not overloading the BlockChain
 
+    print("All transaction have been sent!")
 
-    print("All transaction have been sent, bye!")
-
-    ################################################################################
-    ##     (5) Wait for confirmation
-    ################################################################################
-
-    if not wait:
-        return
-
-    print("Waiting for all transaction to be mined:")
-    start = time.time()
-    while transaction_hash:
-        for h, address in list(transaction_hash.items()):
-            msg = f"  Transaction {h[0:8]} to {address[0:8]}"
-            if api_com.getTransactionBLock(h) is not None:
-                msg += " has been mined !"
-                del transaction_hash[h]
-            else:
-                msg += " still not mined"
-            print(f"{msg} ({common.pp_duration(time.time() - start)} elapsed)")
-            time.sleep(5)
-
-    print("All transaction have been mined, bye!")
+    if wait:
+        common.wait_for_transactions(api_com, transaction_hash)
 
 
 if __name__ == "__main__":

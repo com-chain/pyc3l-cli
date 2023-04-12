@@ -1,3 +1,4 @@
+import time
 import logging
 
 logger = logging.getLogger(__name__)
@@ -77,3 +78,21 @@ def pp_duration(seconds):
             ("%02ds" % s),
         ]
     )
+
+
+def wait_for_transactions(api, transactions_hash, wait=5):
+    print("Waiting for all transaction to be mined:")
+    start = time.time()
+    transactions_hash = transactions_hash.copy()
+    while transactions_hash:
+        for h, address in list(transactions_hash.items()):
+            msg = f"  Transaction {h[0:8]} to {address[0:8]}"
+            if api.getTransactionBLock(h) is not None:
+                msg += " has been mined !"
+                del transactions_hash[h]
+            else:
+                msg += " still not mined"
+            print(f"{msg} ({pp_duration(time.time() - start)} elapsed)")
+            time.sleep(wait)
+
+    print("All transaction have been mined, bye!")
