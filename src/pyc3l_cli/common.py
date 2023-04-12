@@ -54,3 +54,26 @@ def load_password(filename):
     password = file_get_contents(filename)
     password = re.sub(r"\r?\n?$", "", password)  ## remove ending newline if any
     return password
+
+
+def pp_duration(seconds):
+    """Pretty print a duration in seconds
+
+    >>> pp_duration(30)
+    '30s'
+    >>> pp_duration(60)
+    '01m00s'
+    >>> pp_duration(3601)
+    '01h00m01s'
+
+    """
+
+    h, remainder = divmod(seconds, 3600)
+    m, s = divmod(remainder, 60)
+    return "".join(
+        [
+            ("%02dh" % h if h else ""),
+            ("%02dm" % m if m or h else ""),
+            ("%02ds" % s),
+        ]
+    )

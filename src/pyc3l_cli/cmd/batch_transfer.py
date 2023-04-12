@@ -196,17 +196,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
                 del transaction_hash[h]
             else:
                 msg += " still not mined"
-            elapsed = time.time() - start
-            h, remainder = divmod(elapsed, 3600)
-            m, s = divmod(remainder, 60)
-            msg += (
-                " (%s%s%s elapsed)" % (
-                    ("%02dh" % h if h else ""),
-                    ("%02dm" % m if m else ""),
-                    ("%02ds" % s),
-                )
-            )
-            print(msg)
+            print(f"{msg} ({common.pp_duration(time.time() - start)} elapsed)")
             time.sleep(5)
 
     print("All transaction have been mined, bye!")
