@@ -4,7 +4,7 @@
 import click
 import time
 
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
 from pyc3l_cli import common
 
 
@@ -23,7 +23,7 @@ def run(duration, delay, endpoint, currency):
 
 
     # load the high level functions
-    api_com = ApiCommunication(currency, endpoint)
+    currency = Pyc3l(endpoint).Currency(currency)
 
     start = time.time()
 
@@ -34,13 +34,13 @@ def run(duration, delay, endpoint, currency):
            if duration else
            "Cancel run with Ctrl-C.")
     print(f"Starting the run. {msg}")
-    current_block = api_com.getBlockNumber()
+    current_block = currency.getBlockNumber()
     current_block_time = time.time()
     if duration:
         duration = duration * 60
     try:
         while True:
-            new_block = api_com.getBlockNumber()
+            new_block = currency.getBlockNumber()
             current_time = time.time()
             if new_block > current_block:
                 delta = current_time - current_block_time

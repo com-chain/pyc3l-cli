@@ -7,8 +7,8 @@ import time
 import json
 
 from pyc3l_cli import common
-from pyc3l.ApiHandling import ApiHandling
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
+
 
 
 @click.command()
@@ -20,13 +20,15 @@ from pyc3l.ApiCommunication import ApiCommunication
 @click.argument("amount", type=float, required=False)
 def run(wallet_file, password_file, json_data_file, endpoint, amount):
 
-    wallet_file = wallet_file or common.filepicker("Select admin wallet")
-    wallet = common.load_wallet(wallet_file)
+    pyc3l = Pyc3l(endpoint)
 
-    password = (
+    wallet = pyc3l.Wallet.from_file(
+        wallet_file or common.filepicker("Select Admin Wallet")
+    )
+
+    wallet.unlock(
         common.load_password(password_file) if password_file else getpass.getpass()
     )
-    account = common.unlock_account(wallet, password)
 
     # open the list of account to process
     addresses = json.loads(
@@ -41,27 +43,26 @@ def run(wallet_file, password_file, json_data_file, endpoint, amount):
     # get the amount to be pledged
     amount = amount or int(input("Amount to be pledged: "))
 
-    # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
-
     print("------------- PROCESSING ------------------------")
 
+    currency = wallet.currency
     for address in addresses:
-        status = api_com.getAccountStatus(address)
+        account = currency.Account(address)
+        status = account.Status
         print("Status of " + address + " is " + str(status))
-        bal = api_com.getAccountGlobalBalance(address)
+        bal = account.GlobalBalance
         print("Balance of " + address + " is " + str(bal))
         total = amount - bal
 
         if total > 0:
-            api_com.lockUnlockAccount(account, address, lock=False)
-            api_com.pledgeAccount(account, address, total)
-            api_com.lockUnlockAccount(account, address, lock=True)
+            wallet.enable(address)
+            wallet.pledge(address, total)
+            wallet.disable(address)
 
         print(" - done with " + address)
 
         # write the next block
-        while not api_com.hasChangedBlock():
+        while not currency.hasChangedBlock():
             time.sleep(5)
 
     print("------------- END PROCESSING ------------------------")

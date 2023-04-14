@@ -5,7 +5,7 @@ import click
 import getpass
 
 from pyc3l_cli import common
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
 
 
 @click.command()
@@ -15,32 +15,34 @@ from pyc3l.ApiCommunication import ApiCommunication
               help="Force com-chain endpoint.")
 def run(wallet_file, password_file, endpoint):
 
-    wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
-    wallet = common.load_wallet(wallet_file)
+    pyc3l = Pyc3l(endpoint)
 
-    password = (
+    wallet = pyc3l.Wallet.from_file(
+        wallet_file or common.filepicker("Select Admin Wallet")
+    )
+
+    wallet.unlock(
         common.load_password(password_file) if password_file else getpass.getpass()
     )
-    account = common.unlock_account(wallet, password)
 
     address_test_lock = "0xE00000000000000000000000000000000000000E"
 
-    # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
+    currency = wallet.currency
 
-    status = api_com.getAccountStatus(address_test_lock)
+    account_test_lock = currency.Account(address_test_lock)
+    status = account_test_lock.Status
     print("Account " + address_test_lock + " is currently actif = " + str(status))
-    print("Balance = " + str(api_com.getAccountGlobalBalance(address_test_lock)))
+    print("Balance = " + str(account_test_lock.GlobalBalance))
 
-    res = api_com.lockUnlockAccount(account, address_test_lock, lock=False)
+    res = wallet.lockUnlockAccount(address_test_lock, lock=False)
     print(res)
     print("")
 
-    res = api_com.pledgeAccount(account, address_test_lock, 0.01)
+    res = wallet.pledgeAccount(address_test_lock, 0.01)
     print(res)
     print("")
 
-    res = api_com.lockUnlockAccount(account, address_test_lock, lock=True)
+    res = wallet.lockUnlockAccount(address_test_lock, lock=True)
     print(res)
     print("")
 
