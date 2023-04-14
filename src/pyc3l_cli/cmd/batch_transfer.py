@@ -6,7 +6,7 @@ import sys
 import time
 import getpass
 
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
 from pyc3l_cli import common
 
 
@@ -60,25 +60,23 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
     ##     (2) Load the account and check funds availability
     ################################################################################
 
-    wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
-    wallet = common.load_wallet(wallet_file)
+    pyc3l = Pyc3l(endpoint)
 
-    password = (
+    wallet = pyc3l.Wallet.from_file(
+        wallet_file or common.filepicker("Select Admin Wallet")
+    )
+
+    wallet.unlock(
         common.load_password(password_file) if password_file else getpass.getpass()
     )
-    account = common.unlock_account(wallet, password)
 
-    # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
-
-    CM_balance = api_com.getAccountCMBalance(account.address)
-    CM_limit = api_com.getAccountCMLimitMinimum(account.address)
-    Nant_balance = api_com.getAccountNantBalance(account.address)
-    Sender_status = api_com.getAccountStatus(account.address)
-
-    if Sender_status != 1:
+    if wallet.Status != 1:
         print("Error: The Sender Wallet is locked!")
-        sys.exit()
+        sys.exit(1)
+
+    CM_balance = wallet.CMBalance
+    CM_limit = wallet.CMLimitMinimum
+    Nant_balance = wallet.NantBalance
 
     use_cm = False
     use_negative_cm = False
@@ -110,10 +108,13 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
     ##     (3) Check target accounts are available
     ################################################################################
 
+
+    currency = wallet.currency
     total_cm = 0
     total_nant = 0
     for t in transactions:
-        target_status = api_com.getAccountStatus(t['address'])
+        account = currency.Account(t['address'])
+        target_status = account.Status
         if target_status != 1:
             print(
                 "Warning: The Target Wallet with address "
@@ -127,8 +128,8 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
             t["type"] = "Nant"
             continue
 
-        CM_target_balance = api_com.getAccountCMBalance(t['address'])
-        CM_target_limit = api_com.getAccountCMLimitMaximum(t['address'])
+        CM_target_balance = account.CMBalance
+        CM_target_limit = account.CMLimitMaximum
         if t['amount'] + CM_target_balance < CM_target_limit:
             total_cm += t['amount']
             t["type"] = "CM"
@@ -164,8 +165,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
         if t["unlocked"] != 1:
             print(f"Transaction to {t['address']} skipped")
             continue
-        res = getattr(api_com, f"transfer{t['type']}")(
-            account,
+        res = getattr(wallet, f"transfer{t['type']}")(
             t["address"],
             t["amount"],
             message_from=t["message_from"],
@@ -179,7 +179,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
     print("All transaction have been sent!")
 
     if wait:
-        common.wait_for_transactions(api_com, transaction_hash)
+        common.wait_for_transactions(currency, transaction_hash)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import sys
 import time
 import getpass
 
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
 from pyc3l_cli import common
 
 
@@ -55,23 +55,22 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
 
     # Load the API
     print("INFO: Load the API.")
-    wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
-    wallet = common.load_wallet(wallet_file)
+    pyc3l = Pyc3l(endpoint)
 
-    password = (
+    wallet = pyc3l.Wallet.from_file(
+        wallet_file or common.filepicker("Select Admin Wallet")
+    )
+
+    wallet.unlock(
         common.load_password(password_file) if password_file else getpass.getpass()
     )
-    account = common.unlock_account(wallet, password)
-
-    # load the high level functions
-    print("INFO: load the high level functions.")
-    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
 
     print("INFO: Check the provided account to have admin role.")
-    api_com.checkAdmin(account.address)
-    status = api_com.getAccountStatus(account.address)
+    if not wallet.IsValidAdmin:
+        print("Error: The wallet's account is not admin")
+        sys.exit(1)
 
-    if status != 1:
+    if wallet.Status != 1:
         print("Error: The Admin Wallet is locked!")
         sys.exit(1)
 
@@ -79,10 +78,11 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
     ##     (3) Check target accounts are available
     ################################################################################
 
+    currency = wallet.currency
     transactions = map(
-        lambda transaction: dict(
-            transaction,
-            unlocked=api_com.getAccountStatus(transaction["address"]) == 1
+        lambda t: dict(
+            t,
+            unlocked=currency.Account(t["address"]).Status == 1
         ),
         transactions
     )
@@ -102,8 +102,8 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
             print(f"Transaction to {t['address']} skipped")
             continue
 
-        res = api_com.pledgeAccount(
-            account, t["address"], t["amount"], message_to=t["message"]
+        res = wallet.pledgeAccount(
+            t["address"], t["amount"], message_to=t["message"]
         )
         transaction_hash[res] = t["address"]
         print(
@@ -118,7 +118,7 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
     print("All transaction have been sent!")
 
     if wait:
-        common.wait_for_transactions(api_com, transaction_hash)
+        common.wait_for_transactions(currency, transaction_hash)
 
 
 

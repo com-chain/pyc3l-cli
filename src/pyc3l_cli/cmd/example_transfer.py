@@ -5,7 +5,7 @@ import click
 import getpass
 
 from pyc3l_cli import common
-from pyc3l.ApiCommunication import ApiCommunication
+from pyc3l import Pyc3l
 
 
 @click.command()
@@ -15,30 +15,30 @@ from pyc3l.ApiCommunication import ApiCommunication
               help="Force com-chain endpoint.")
 def run(wallet_file, password_file, endpoint):
 
-    wallet_file = wallet_file or common.filepicker("Select Admin Wallet")
-    wallet = common.load_wallet(wallet_file)
+    pyc3l = Pyc3l(endpoint)
 
-    password = (
+    wallet = pyc3l.Wallet.from_file(
+        wallet_file or common.filepicker("Select Admin Wallet")
+    )
+
+    wallet.unlock(
         common.load_password(password_file) if password_file else getpass.getpass()
     )
-    account = common.unlock_account(wallet, password)
 
-    target_address = "0xE00000000000000000000000000000000000000E"
-
-    # load the high level functions
-    api_com = ApiCommunication(wallet["server"]["name"], endpoint)
+    currency = wallet.currency
 
     print(
         "The sender wallet "
-        + account.address
+        + wallet.address
         + ", on server "
-        + wallet["server"]["name"]
+        + currency._currency_name
         + " has a balance of = "
-        + str(api_com.getAccountGlobalBalance(account.address))
+        + str(wallet.GlobalBalance)
     )
 
-    res = api_com.transferNant(
-        account, target_address, 0.01, message_from="test", message_to="test"
+    target_address = "0xE00000000000000000000000000000000000000E"
+    res = wallet.transferNant(
+        target_address, 0.01, message_from="test", message_to="test"
     )
     print(res)
     print("")
