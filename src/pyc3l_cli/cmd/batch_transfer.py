@@ -164,7 +164,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
         if t["unlocked"] != 1:
             print(f"Transaction to {t['address']} skipped")
             continue
-        res = getattr(api_com, f"transfert{t['type']}")(
+        res = getattr(api_com, f"transfer{t['type']}")(
             account,
             t["address"],
             t["amount"],

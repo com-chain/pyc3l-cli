@@ -37,7 +37,7 @@ def run(wallet_file, password_file, endpoint):
         + str(api_com.getAccountGlobalBalance(account.address))
     )
 
-    res = api_com.transfertNant(
+    res = api_com.transferNant(
         account, target_address, 0.01, message_from="test", message_to="test"
     )
     print(res)
