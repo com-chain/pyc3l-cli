@@ -117,10 +117,9 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
         target_status = account.Status
         if target_status != 1:
             print(
-                "Warning: The Target Wallet with address "
-                + t['address']
-                + "is locked and will be skipped"
+                f"Warning: target wallet {t['address']} is locked and will be skipped"
             )
+            t["unlocked"] = 0
             continue
         t["unlocked"] = 1
         if use_nant:
