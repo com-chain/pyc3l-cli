@@ -178,7 +178,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
     print("All transaction have been sent!")
 
     if wait:
-        common.wait_for_transactions(currency, transaction_hash)
+        common.wait_for_transactions(pyc3l, transaction_hash)
 
 
 if __name__ == "__main__":

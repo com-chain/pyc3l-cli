@@ -55,15 +55,16 @@ def run(wallet_file, password_file, json_data_file, endpoint, amount):
         total = amount - bal
 
         if total > 0:
+            pyc3l.registerCurrentBlock()
+
             wallet.enable(address)
             wallet.pledge(address, total)
             wallet.disable(address)
 
-        print(" - done with " + address)
+            print(" - done with " + address)
 
-        # write the next block
-        while not currency.hasChangedBlock():
-            time.sleep(5)
+            while not pyc3l.hasChangedBlock():
+                time.sleep(5)
 
     print("------------- END PROCESSING ------------------------")
 
