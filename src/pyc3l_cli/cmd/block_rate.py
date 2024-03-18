@@ -15,15 +15,10 @@ from pyc3l_cli import common
               type=int)
 @click.option("-D", "--delay", help="delay between blockchain request in seconds", default=2)
 @click.option("-e", "--endpoint",
-              help="Force com-chain endpoint.")
-@click.option("-c", "--currency",
-              help="Force com-chain endpoint.",
-              default="Lemanoplis")
-def run(duration, delay, endpoint, currency):
+              help="Force com-chain endpoint")
+def run(duration, delay, endpoint):
 
-
-    # load the high level functions
-    currency = Pyc3l(endpoint).Currency(currency)
+    pyc3l = Pyc3l(endpoint)
 
     start = time.time()
 
@@ -34,13 +29,13 @@ def run(duration, delay, endpoint, currency):
            if duration else
            "Cancel run with Ctrl-C.")
     print(f"Starting the run. {msg}")
-    current_block = currency.getBlockNumber()
+    current_block = pyc3l.getBlockNumber()
     current_block_time = time.time()
     if duration:
         duration = duration * 60
     try:
         while True:
-            new_block = currency.getBlockNumber()
+            new_block = pyc3l.getBlockNumber()
             current_time = time.time()
             if new_block > current_block:
                 delta = current_time - current_block_time

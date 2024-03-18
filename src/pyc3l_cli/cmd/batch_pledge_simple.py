@@ -55,15 +55,19 @@ def run(wallet_file, password_file, json_data_file, endpoint, amount):
         total = amount - bal
 
         if total > 0:
-            wallet.lockUnlockAccount(address, lock=False)
-            wallet.pledgeAccount(address, total)
-            wallet.lockUnlockAccount(address, lock=True)
+            pyc3l.registerCurrentBlock()
 
-        print(" - done with " + address)
+            wallet.enable(address)
+            wallet.pledge(address, total)
+            wallet.disable(address)
 
-        # write the next block
-        while not currency.hasChangedBlock():
-            time.sleep(5)
+            print(" - done with " + address)
+
+            # wait the next block
+            import pdb; pdb.set_trace()  # fmt: skip
+            
+            while not pyc3l.hasChangedBlock():
+                time.sleep(5)
 
     print("------------- END PROCESSING ------------------------")
 

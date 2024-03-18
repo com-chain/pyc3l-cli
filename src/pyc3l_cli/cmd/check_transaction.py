@@ -10,18 +10,10 @@ from pyc3l import Pyc3l
 @click.command()
 @click.option("-e", "--endpoint",
               help="Force com-chain endpoint.")
-@click.option("-c", "--currency",
-              help="Force com-chain endpoint.",
-              default="Lemanoplis")
 @click.argument("transaction")
-def run(endpoint, currency, transaction):
+def run(endpoint, transaction):
 
     # load the high level functions
-    currency = Pyc3l(endpoint).Currency(currency)
-    res = currency.getTransactionInfo(transaction)
-    if isinstance(res, str):
-        import json
+    transaction = Pyc3l(endpoint).Transaction(transaction)
 
-        res = json.loads(res)
-
-    pprint.pprint(res)
+    pprint.pprint(transaction.data)
