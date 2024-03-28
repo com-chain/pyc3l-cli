@@ -3,10 +3,13 @@
 
 import click
 import time
+import datetime
 
 from pyc3l import Pyc3l
 from pyc3l_cli import common
 
+def now_str():
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 @click.command()
 @click.option("-d", "--duration",
@@ -31,6 +34,7 @@ def run(duration, delay, endpoint):
     print(f"Starting the run. {msg}")
     current_block = pyc3l.getBlockNumber()
     current_block_time = time.time()
+    print(f"{now_str()} Current block at startup is {current_block}")
     if duration:
         duration = duration * 60
     try:
@@ -43,7 +47,7 @@ def run(duration, delay, endpoint):
                 blocks.append(current_block)
                 deltas.append(delta)
                 current_block = new_block
-                print(f"New block after {common.pp_duration(delta)}")
+                print(f"{now_str()} New block {current_block} after {common.pp_duration(delta)}")
             if duration and (current_time - start) > duration:
                 break
             time.sleep(delay)
@@ -57,4 +61,4 @@ def run(duration, delay, endpoint):
         )
     else:
         msg += "No blocks where added !"
-    print(msg)
+    print(f"{now_str()} {msg}")
