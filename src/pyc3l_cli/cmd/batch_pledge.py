@@ -66,11 +66,11 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
     )
 
     print("INFO: Check the provided account to have admin role.")
-    if not wallet.IsValidAdmin:
+    if not wallet.isValidAdmin:
         print("Error: The wallet's account is not admin")
         sys.exit(1)
 
-    if wallet.Status != 1:
+    if not wallet.isActive:
         print("Error: The Admin Wallet is locked!")
         sys.exit(1)
 
@@ -82,7 +82,7 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
     transactions = map(
         lambda t: dict(
             t,
-            unlocked=currency.Account(t["address"]).Status == 1
+            unlocked=currency.Account(t["address"]).isActive
         ),
         transactions
     )
@@ -102,7 +102,7 @@ def run(wallet_file, password_file, csv_data_file, delay, endpoint, wait, no_con
             print(f"Transaction to {t['address']} skipped")
             continue
 
-        res = wallet.pledgeAccount(
+        res = wallet.pledge(
             t["address"], t["amount"], message_to=t["message"]
         )
         transaction_hash[res] = t["address"]

@@ -25,26 +25,17 @@ def run(wallet_file, password_file, endpoint):
         common.load_password(password_file) if password_file else getpass.getpass()
     )
 
-    address_test_lock = "0xE00000000000000000000000000000000000000E"
+    address_test = "0xE00000000000000000000000000000000000000E"
 
     currency = wallet.currency
 
-    account_test_lock = currency.Account(address_test_lock)
-    status = account_test_lock.Status
-    print("Account " + address_test_lock + " is currently actif = " + str(status))
-    print("Balance = " + str(account_test_lock.GlobalBalance))
+    account = currency.Account(address_test)
+    print(f"Account {address_test} is currently active = {account.isActive!r}")
+    print("Balance = " + str(account.globalBalance))
 
-    res = wallet.lockUnlockAccount(address_test_lock, lock=False)
-    print(res)
-    print("")
-
-    res = wallet.pledgeAccount(address_test_lock, 0.01)
-    print(res)
-    print("")
-
-    res = wallet.lockUnlockAccount(address_test_lock, lock=True)
-    print(res)
-    print("")
+    print(wallet.enable(address_test))
+    print(wallet.pledge(address_test, 0.01))
+    print(wallet.disable(address_test))
 
 
 if __name__ == "__main__":

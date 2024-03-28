@@ -48,23 +48,25 @@ def run(wallet_file, password_file, json_data_file, endpoint, amount):
     currency = wallet.currency
     for address in addresses:
         account = currency.Account(address)
-        status = account.Status
-        print("Status of " + address + " is " + str(status))
+        status = account.isActive
+        print(f"Status of {address} is {status!r}")
         bal = account.GlobalBalance
-        print("Balance of " + address + " is " + str(bal))
+        print(f"Balance of {address} is {bal}")
         total = amount - bal
 
-        if total > 0:
-            pyc3l.registerCurrentBlock()
+        if total <= 0:
+            continue
 
-            wallet.enable(address)
-            wallet.pledge(address, total)
-            wallet.disable(address)
+        pyc3l.registerCurrentBlock()
 
-            print(" - done with " + address)
+        wallet.enable(address)
+        wallet.pledge(address, total)
+        wallet.disable(address)
 
-            while not pyc3l.hasChangedBlock():
-                time.sleep(5)
+        print(" - done with " + address)
+
+        while not pyc3l.hasChangedBlock():
+            time.sleep(5)
 
     print("------------- END PROCESSING ------------------------")
 

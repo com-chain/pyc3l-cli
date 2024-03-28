@@ -20,7 +20,7 @@ def run(wallet_file, password_file, endpoint, address, amount):
     pyc3l = Pyc3l(endpoint)
 
     wallet = pyc3l.Wallet.from_file(
-        wallet_file or common.filepicker("Select Admin Wallet")
+        wallet_file or common.filepicker("Select Wallet")
     )
 
     wallet.unlock(
@@ -30,17 +30,12 @@ def run(wallet_file, password_file, endpoint, address, amount):
     currency = wallet.currency
 
     print(
-        "The sender wallet "
-        + wallet.address
-        + ", on server "
-        + currency._currency_name
-        + " has a balance of = "
-        + str(wallet.GlobalBalance)
+        f"The sender wallet {wallet.address} on "
+        f"server {currency._currency_name} "
+        f"has a balance of = {wallet.GlobalBalance}"
     )
 
-    res = wallet.delegate(
-        address, amount
-    )
+    res = wallet.delegate(address, amount)
     print(res)
     print("")
 

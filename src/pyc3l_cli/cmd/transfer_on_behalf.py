@@ -42,17 +42,15 @@ def run(wallet_file, password_file, endpoint, address_from, address_to, amount):
         print("Error: No available delegations")
         exit(1)
 
-    print("  Delegations:")
+    print("  MyDelegations:")
     for address, delegation_amount in lst.items():
         print(f"    - from {address} for {delegation_amount} {symbol}")
 
-    res = wallet.transferOnBehalfOf(
+    print(wallet.transferOnBehalfOf(
         address_from, address_to, amount,
         message_from="pyc3l",
         message_to="pyc3l",
-    )
-    print(res)
-    print("")
+    ))
 
 
 if __name__ == "__main__":

@@ -70,13 +70,13 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
         common.load_password(password_file) if password_file else getpass.getpass()
     )
 
-    if wallet.Status != 1:
+    if not wallet.isActive:
         print("Error: The Sender Wallet is locked!")
         sys.exit(1)
 
-    CM_balance = wallet.CMBalance
-    CM_limit = wallet.CMLimitMinimum
-    Nant_balance = wallet.NantBalance
+    CM_balance = wallet.cmBalance
+    CM_limit = wallet.cmLimitMin
+    Nant_balance = wallet.nantBalance
 
     use_cm = False
     use_negative_cm = False
@@ -114,8 +114,7 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
     total_nant = 0
     for t in transactions:
         account = currency.Account(t['address'])
-        target_status = account.Status
-        if target_status != 1:
+        if not account.isActive:
             print(
                 f"Warning: target wallet {t['address']} is locked and will be skipped"
             )
@@ -127,8 +126,8 @@ def run(wallet_file, password_file, csv_data_file, delay, wait, endpoint, no_con
             t["type"] = "Nant"
             continue
 
-        CM_target_balance = account.CMBalance
-        CM_target_limit = account.CMLimitMaximum
+        CM_target_balance = account.cmBalance
+        CM_target_limit = account.cmLimitMax
         if t['amount'] + CM_target_balance < CM_target_limit:
             total_cm += t['amount']
             t["type"] = "CM"

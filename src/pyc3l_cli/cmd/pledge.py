@@ -28,9 +28,8 @@ def run(wallet_file, password_file, endpoint, address, amount):
     currency = wallet.currency
 
     account = currency.Account(address)
-    status = account.Status
-    print("Account " + address + " is currently active = " + str(status))
-    print("Balance = " + str(account.GlobalBalance))
+    print(f"Account {address} is currently active = {account.isActive!r}")
+    print(f"Balance = {account.GlobalBalance}")
 
     res = wallet.pledge(address, amount)
     print(res)
