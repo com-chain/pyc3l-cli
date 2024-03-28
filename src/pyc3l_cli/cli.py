@@ -46,7 +46,8 @@ class Pyc3lCLI(click.MultiCommand):
             name,
             context_settings={
                 "ignore_unknown_options": True
-            }
+            },
+            add_help_option=False,
         )
         @click.argument('args', nargs=-1)
         @pass_environment
