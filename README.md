@@ -12,15 +12,22 @@ This is more a draft for an ongoing reflection.
 
 ## Features
 
-using ``pyc3l-cli``:
+using ``pyc3l-cli``, through the ``pyc3l`` command line tool, you can:
 
--
+- monitor block rates with ``pyc3l block_rate``
+- check account information with ``pyc3l account_info`` (last
+  transactions, type, status, balance, delegations...)
+- check a specific transaction ``pyc3l check_transaction``
+- issue pledge, transfer, delegate, and transfer on behalf commands
+- ... many examples and other specific commands are provided ...
 
 ## Requirement
 
-This code is for python3 and uses ``tkinter``
+This code is for python3. Some subcommands are using ``tkinter`` for
+interactive usage (you can always avoid using ``tkinter`` by providing
+necessary arguments on command line).
 
-You can check if tkinter is installed by running ``python3`` and typing:
+You can check if ``tkinter`` is installed by running ``python3`` and typing:
 
 ```
 >>> import tkinter
