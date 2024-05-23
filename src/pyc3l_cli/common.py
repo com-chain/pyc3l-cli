@@ -28,7 +28,7 @@ def readCSV(file_path):
 
 def filepicker(title):
     import tkinter.filedialog
-    import tkinter as tk
+    import tkinter
 
     filename = tkinter.filedialog.askopenfilename(title=title)
     if not filename:
@@ -50,7 +50,6 @@ def load_wallet(filename):
 
 
 def unlock_account(wallet, password):
-    import json
     from eth_account import Account
 
     account = Account.privateKeyToAccount(Account.decrypt(wallet, password))
@@ -72,22 +71,20 @@ def pp_duration(seconds):
     >>> pp_duration(30)
     '30s'
     >>> pp_duration(60)
-    '01m00s'
+    '1m00s'
     >>> pp_duration(3601)
-    '01h00m01s'
+    '1h00m01s'
 
     """
 
     h, remainder = divmod(seconds, 3600)
     m, s = divmod(remainder, 60)
+    fmt = "%dh%02dm%02ds" if h else "%dm%02ds" if m else "%ds"
     return "".join(
         [
-            ("%02dh" % h if h else ""),
-            ("%02dm" % m if m or h else ""),
-            ("%02ds" % s),
+            fmt % (h, m, s) if h else fmt % (m, s) if m else fmt % s,
         ]
     )
-
 
 def wait_for_transactions(pyc3l, transactions_hash, wait=5):
     print("Waiting for all transaction to be mined:")
