@@ -155,7 +155,7 @@ def pp_tx(tx, currency=True, raw=False):
             assert abi_fn[0].startswith(tx.currency.symbol)
             msg += click.style(f"{abi_fn[1]:22}", fg='bright_white') + " "
 
-        adds = [add.lstrip("0x") for add in [tx.add1, tx.add2]]
+        adds = [add[2:] if add.startswith('0x') else add for add in [tx.add1, tx.add2]]
         adds = ["" if add == "Admin" else
                 add for add in adds]
         adds = [f"{add[:6]}‥" if add else "" for add in adds]
