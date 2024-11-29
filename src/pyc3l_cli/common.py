@@ -255,15 +255,15 @@ def pp_bc_tx(bc_tx, raw=False, exclude=None):
         msg += click.style(f"{abi_fn[0]:>10}.{abi_fn[1]:22}", fg='bright_white') + " "
 
         if bc_tx.to is None:
-            msg += click.style(f"({bc_tx.data['to'][:6]}B)", fg='magenta') + " "
+            msg += click.style(f"({int(len(bc_tx.data['input'][2:])/2)}B)", fg='magenta') + " "
         if tx and tx.is_cc_transaction:
-            adds = [add.lstrip("0x") for add in [tx.add1, tx.add2]]
+            adds = [add[2:] if add.startswith('0x') else add for add in [tx.add1, tx.add2]]
             adds = ["" if add == "Admin" else
                     "caller" if add == caller else
                     add for add in adds]
             adds = [add[:6] for add in adds]
             adds = [
-                click.style(f"{add:6s}"+ (" " if add == "caller" else "‥"),
+                click.style(f"{add:6s}"+ (" " if add in ("caller", "") else "‥"),
                             fg='magenta', dim=(add == "caller"))
                 for add in adds
             ]
