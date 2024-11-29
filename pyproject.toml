@@ -19,6 +19,8 @@ classifiers = [
 dependencies = [
   "pyc3l",
   "click",
+  "sact.epoch",
+  "pyyaml",
 ]
 
 [project.urls]
