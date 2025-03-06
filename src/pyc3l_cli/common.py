@@ -1,5 +1,7 @@
 
 from pyc3l.lib.dt import utc_ts_to_local_iso, dt_to_local_iso
+from pyc3l.ApiHandling import APIErrorNoMessage
+
 
 import time
 import logging
@@ -107,8 +109,12 @@ def wait_for_transactions(pyc3l, transactions_hash, wait=5):
 def pp_tx(tx, currency=True, raw=False):
     try:
         msg = ""
-        abi_fn = tx.bc_tx.abi_fn
-        bc_tx = tx.bc_tx
+        try:
+            bc_tx = tx.bc_tx
+        except APIErrorNoMessage as e:
+            return f""
+
+        abi_fn = bc_tx.abi_fn
         caller = tx.bc_tx_data["from"][2:]
         if raw:
             msg += f"hash: {tx.hash}\n"
