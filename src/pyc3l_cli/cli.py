@@ -41,7 +41,8 @@ class Pyc3lCLI(click.MultiCommand):
                       if filename.endswith(".py") and filename != "__init__.py")
 
     def get_command(self, ctx, name):
-        cmd = None
+        if name not in self.list_commands(ctx):
+            return None
         @click.command(
             name,
             context_settings={
