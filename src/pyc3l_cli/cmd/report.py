@@ -984,45 +984,44 @@ def option_get_address_groups(address_group_file):
     "-S",
     "--start-block",
     type=str,
-    help="Block number to start considering.",
+    help="Add constraint on first block to consider. `--start-date` can constrain further",
     default=1,
 )
 @click.option(
     "-E",
     "--end-block",
     type=str,
-    help="Block number to end considering.",
+    help="Add constraint on last lock to consider. `--end-date` can constrain further",
     default=0,
 )
 @click.option(
     "-s",
     "--start-date",
     type=str,
-    help="starting date to start considering.",
+    help="starting date of report. `--start-block` can constrain the start date further",
     default=None,
 )
 @click.option(
     "-e",
     "--end-date",
     type=str,
-    help="ending date to start considering.",
+    help="ending date of report. `--end-block` can constrain the end date further",
     default=None,
 )
 @click.option(
     "--safe-wallets-file",
     type=str,
-    help="Block starting date to start considering.",
+    help="Path to safe-wallet file, instead of list from ipfs",
 )
-@click.option("-r", "--raw", is_flag=True, help="Print raw values.")
-@click.option("-a", "--account", multiple=True, help="Filter by account address.")
-@click.option("-c", "--currency", multiple=True, help="Filter by account address.")
-@click.option("-g", "--granularity", help="Granularity of the output.")
+@click.option("-r", "--raw", is_flag=True, help="Print raw values")
+@click.option("-c", "--currency", multiple=True,
+              help="Filter by currency (can be repeated, or multi-valued using comma as separator)")
+@click.option("-g", "--granularity", help="Granularity of the output")
 @click.option("-G", "--address-group-file", help="Address group file for each currency")
 def run(
     start_block: Optional[str],
     end_block: Optional[str],
     endpoint: Optional[str],
-    account: List[str],
     raw: bool,
     currency: List[str],
     start_date: Optional[str],
