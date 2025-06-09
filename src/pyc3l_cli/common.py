@@ -296,6 +296,16 @@ def pp_bc_tx(bc_tx, raw=False, exclude=None):
         pprint.pprint(tx.data)
         raise
 
+
+def pp_address(add, raw=False):
+    if raw:
+        return add
+    add = add[2:] if add.startswith('0x') else add
+    add = add[:6]
+    return click.style(f"{add:6s}" + "‥", fg='magenta')
+
+
+
 def pp_block(block, raw=False):
     msg = ""
     if raw:
