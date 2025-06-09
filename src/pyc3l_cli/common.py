@@ -204,9 +204,9 @@ def pp_bc_tx(bc_tx, raw=False, exclude=None):
         if raw:
             if "hash" not in exclude:
                 msg += f"hash: {bc_tx.hash}\n"
-            if "block" not in exclude:
+            if "block" not in exclude and bc_tx.block is not None:
                 msg += f"block:\n"
-                msg += f"  hash: {bc_tx.blockHash}\n"
+                msg += f"  hash: {bc_tx.block.hash}\n"
                 msg += f"  number:\n"
                 msg += f"    dec: {bc_tx.block.number_hex}\n"
                 msg += f"    hex: {bc_tx.block.number}\n"
@@ -216,7 +216,8 @@ def pp_bc_tx(bc_tx, raw=False, exclude=None):
                 msg += f"  iso: {tx.time_iso or 'null'}\n"
             msg += f"pending: {'true' if tx.pending else 'false'}\n"
             msg += "call:\n"
-            msg += f"  caller: {bc_tx.data['from']}\n"
+            if "caller" not in exclude:
+                msg += f"  caller: {bc_tx.data['from']}\n"
             msg += "  contract:\n"
             msg += f"    hex: {bc_tx.data['to']}\n"
             if not abi_fn[0].startswith('['):
@@ -257,10 +258,12 @@ def pp_bc_tx(bc_tx, raw=False, exclude=None):
         date_iso = dt_to_local_iso(tx.time) if tx and tx.is_cc_transaction else '????-??-?? ??:??:??+????'
         msg += click.style(f"{date_iso}", fg='black' if date_iso.startswith("?") else 'cyan') + " "
 
-        status = "*" if bc_tx.blockNumber is None else " "
-        msg += click.style(f"{status:1s}", fg='white', bold=True) + " "
+        if "status" not in exclude:
+            status = "*" if bc_tx.blockNumber is None else " "
+            msg += click.style(f"{status:1s}", fg='white', bold=True) + " "
 
-        msg += click.style(f"{caller[:6]:6s}‥", fg='magenta') + " "
+        if "caller" not in exclude:
+            msg += click.style(f"{caller[:6]:6s}‥", fg='magenta') + " "
 
         msg += click.style(f"{abi_fn[0]:>10}.{abi_fn[1]:22}", fg='bright_white') + " "
 
