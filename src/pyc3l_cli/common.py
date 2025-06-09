@@ -149,8 +149,12 @@ def pp_tx(tx, currency=True, raw=False):
             msg += f"        gwei: {bc_tx.gas_price_gwei}\n"
             return msg
 
-        date_iso = dt_to_local_iso(tx.time)
-        msg += click.style(f"{date_iso}", fg='cyan') + " "
+        if tx.time:
+            date_iso = dt_to_local_iso(tx.time)
+            msg += click.style(f"{date_iso}", fg='cyan') + " "
+        else:
+            msg += click.style("????-??-?? ??:??:??", fg='black') + " "
+
 
         status = " " if tx.pending else click.style("✔", fg='green', bold=True)
         msg += click.style(f"{status:1s}", fg='white', bold=True) + " "
