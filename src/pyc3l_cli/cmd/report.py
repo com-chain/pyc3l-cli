@@ -1049,7 +1049,13 @@ def run(
     )
     if end_block == 0:
         end_block = pyc3l.getBlockNumber()
-    safe_wallets = option_get_safe_wallets(safe_wallets_file)
+    if safe_wallets_file:
+        safe_wallets = option_get_safe_wallets(safe_wallets_file)
+    else:
+        safe_wallets = {
+            c: pyc3l.Currency(c).technicalAccounts
+            for c in params["currency"]
+        }
     address_groups = option_get_address_groups(address_group_file)
     ## make safe wallets a "national currency" address group
     for c in params["currency"]:
