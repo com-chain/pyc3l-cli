@@ -399,6 +399,150 @@ def pp_seg_blocks(block, count: int, raw: bool = False, skip_empty: bool = False
         print()
 
 
+def pp_account(account, raw=False, exclude=None, nb_tx=None):
+    if nb_tx is None:
+        nb_tx = 0 if raw else 5
+    exclude = exclude or []
+    msg = ""
+    if raw:
+        msg += f"hash: {account.address}\n"
+        msg += f"nonce:\n"
+        msg += f"  hex: {account.nonce_hex}\n"
+        msg += f"  dec: {account.nonce_dec}\n"
+        msg += f"balance:\n"
+        msg += f"  eth: {account.eth_balance}\n"
+        msg += f"  gwei: {account.eth_balance_gwei}\n"
+        msg += f"  wei: {account.eth_balance_wei}\n"
+        msg += "wallet:\n"
+        msg += "  currency:\n"
+        msg += f"    name: {account.currency.name}\n"
+        msg += f"    symbol: {account.currency.symbol}\n"
+        msg += f"  status:\n"
+        for label in ["active", "owner"]:
+            msg += f"    {label}: {str(getattr(account, label)).lower()}\n"
+        msg += f"    role:\n"
+        msg += f"      value: {account.type}\n"
+        msg += f"      label: {account.role}\n"
+        msg += "  balance:\n"
+        msg += f"    total: {account.globalBalance:.2f}\n"
+        msg += f"    accounts:\n"
+        msg += f"      nant: {account.nantBalance:.2f}\n"
+        msg += "      cm:\n"
+        msg += f"        current: {account.cmBalance:.2f}\n"
+        msg += f"        min: {account.cmLimitMin:.2f}\n"
+        msg += f"        max: {account.cmLimitMax:.2f}\n"
+        for label in [
+            "allowances",
+            "requests",
+            "my_requests",
+            "delegations",
+            "my_delegations",
+            "accepted_requests",
+            "rejected_requests",
+        ]:
+            lst = getattr(account, label)
+            if len(lst) == 0:
+                msg += f"  {label}: []\n"
+                continue
+            msg += f"  {label}:\n"
+            for address, amount in lst.items():
+                msg += f"  - {{address: {address}, amount: {amount:.2f}}}\n"
+    else:
+        msg = ""
+        currency = account.currency
+        symbol = currency.symbol
+        print(click.style("Address:", bold=True) + " " +
+              click.style(f"0x{account.address}", fg='magenta'), end=" ")
+        if account.active:
+            msg += click.style("ACTIVE", fg='green') + " "
+        else:
+            msg += click.style("DISABLED", fg='red') + " "
+        ## Account type 4 = Property Admin, 3 = Pledge Admin, 2 = Super Admin, 1 = Business, 0 = Personal
+        role_color = 'blue' if account.role.endswith("admin") else \
+            'yellow' if account.role == 'business' else \
+            'cyan'
+        msg += click.style(
+            "".join(word.capitalize()
+                    for word in account.role.split(" ")
+                    ), fg=role_color) + " "
+
+        if account.isOwner:
+            msg += click.style("OWNER", fg='white', bold=True)
+        msg += "\n"
+
+        msg += f"  Nonce: {account.nonce_hex} ({account.nonce_dec})\n"
+        msg += f"  Balance: {account.globalBalance:10.2f} {symbol}\n"
+        msg += f"    Nant : {account.nantBalance:10.2f} {symbol}\n"
+        msg += (
+            f"    CM   : {account.cmBalance:10.2f} {symbol} "
+            f"({account.cmLimitMin} to {account.cmLimitMax} {symbol})\n"
+        )
+        msg += f"  ETH balance = {account.eth_balance_wei} Wei (={account.eth_balance} Ether)\n"
+
+        for label in [
+            "allowances",
+            "requests",
+            "my_requests",
+            "delegations",
+            "my_delegations",
+            "accepted_requests",
+            "rejected_requests",
+        ]:
+            lst = getattr(account, label)
+            if len(lst) == 0:
+                continue
+            msg += f"  {label}:\n"
+            for address, amount in lst.items():
+                msg += f"    - from {address} for {amount} {symbol}\n"
+        has_content = False
+        msg += click.style(f"Last transactions in {currency.name}:", fg='white', bold=True) + "\n"
+        other_currencies = set()
+        notes = []
+        count_tx = 0
+        for idx, tx in enumerate(account.transactions):
+            ## tx here is incomplete (doesn't contain always the bc_tx), and
+            ## the currency given there could not be the one advertised in
+            ## current list of currencies.
+
+            tx_cur_name = tx.currency.name
+            ## By launching the next line, we force the resolution of bc_tx and
+            ## switch to using the contract info to reverse infer the currency
+
+            ## yeahh..
+
+            tx_msg = pp_tx(tx, currency=True, raw=False)
+            tx_cur = tx.currency
+            if tx_cur.name != tx_cur_name:
+                note = ("inconsistent_currency_name", tx_cur.name, tx_cur_name)
+                if note not in notes:
+                    notes.append(note)
+                note_idx = notes.index(note)
+                tx_msg = tx_msg[0:-1] + click.style(f" [{note_idx}]", fg='red') + "\n"
+            if tx_cur.name != currency.name:
+                other_currencies.add(tx_cur)
+                continue
+            has_content = True
+
+            msg += "  " + tx_msg
+            count_tx += 1
+            if count_tx + 1 >= nb_tx:
+                break
+        if notes:
+            msg += click.style("  Notes:", fg='white', bold=True) + "\m"
+            for idx, note in enumerate(notes):
+                if note[0] == "inconsistent_currency_name":
+                    msg += (click.style(f"    [{idx}]", fg='red') +
+                            f" inconsistent currency name between " +
+                            f"transaction info {note[1]!r} and contract {note[2]!r}") + "\n"
+        if not has_content:
+            msg += "    No transactions found in this currency.\n"
+        if len(other_currencies) > 0:
+            msg += "  Other transactions exist in currencies:\n"
+            for cur in other_currencies:
+                msg += f"    - {cur}\n"
+
+    return msg
+
 def disable_echo():
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)

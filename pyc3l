@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pipenv-shebang
 
 from pyc3l_cli import cli
 cli.cli()
