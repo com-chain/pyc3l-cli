@@ -309,11 +309,11 @@ def pp_address(add, raw=False):
 def pp_block(block, raw=False):
     msg = ""
     if raw:
-        msg += f"hash: {block.data['hash']}\n"
+        msg += f"hash: {block.hash}\n"
         msg += "number:\n"
         msg += f"  dec: {block.number}\n"
         msg += f"  hex: {block.number_hex}\n"
-        msg += f"collated:\n"
+        msg += "collated:\n"
         msg += f"  ts: {block.collated_ts}\n"
         msg += f"  iso: {block.collated_iso}\n"
         indent="- "
