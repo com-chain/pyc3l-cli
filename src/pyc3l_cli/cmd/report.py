@@ -1002,7 +1002,6 @@ def option_get_address_groups(address_group_file):
     default=None,
 )
 @click.option(
-    "-e",
     "--end-date",
     type=str,
     help="ending date of report. `--end-block` can constrain the end date further",
