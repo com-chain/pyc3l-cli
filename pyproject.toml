@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyc3l>=0.5.0",
+  "pyc3l>=0.6.0",
   "click",
   "sact.epoch",
   "pyyaml",
@@ -35,4 +35,19 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/pyproject.toml",
+  "/README.md",
+  "/LICENSE",
+]
+exclude = [
+  "/.dovis",
+  "/.pkg",
+  "/.github",
+  "/doc",
+  "/.gitignore",
+]
 
