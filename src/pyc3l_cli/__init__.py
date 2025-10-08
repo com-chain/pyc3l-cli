@@ -1,5 +1,10 @@
 ## Monkey-patching parsimonious 0.8 to support Python 3.11
 
+import warnings
+
+warnings.filterwarnings("ignore")
+
+
 import sys
 import inspect
 
