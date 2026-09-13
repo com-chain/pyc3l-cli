@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.7"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -889,8 +889,6 @@ resolution-markers = [
 dependencies = [
     { name = "colorama", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
     { name = "importlib-metadata", version = "6.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8'" },
-    { name = "importlib-metadata", version = "8.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_version < '0'" },
-    { name = "importlib-metadata", version = "8.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_version < '0'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
@@ -3180,7 +3178,7 @@ wheels = [
 
 [[package]]
 name = "pyc3l"
-version = "0.6.0"
+version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ecdsa" },
@@ -3196,9 +3194,9 @@ dependencies = [
     { name = "web3", version = "3.16.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.8'" },
     { name = "web3", version = "5.23.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0f/7a/a77e8e4b48b72e1181d07e4a06769b3a0d87961a880514b4a844382aa6f1/pyc3l-0.6.0.tar.gz", hash = "sha256:08151e0553c6d338bdeeca8019ca82723a46dc805f2e0aed7a16cc038e42d328", size = 35898, upload-time = "2025-10-08T09:54:37.754Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/6f/1c09ea3bff610dce5bb1f102e2ee2ff09a74848aa351e286d200db1e5dab/pyc3l-0.6.1.tar.gz", hash = "sha256:32211b486c7ca84cd1d5d0c0d8aef91d5b31346296115e888b277e21f04539cd", size = 35836, upload-time = "2026-09-13T14:01:39.755Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/95/38dbdd847c762bf8af393755e8ba27d885eda04a10ca5bb2820e4e0f66fe/pyc3l-0.6.0-py3-none-any.whl", hash = "sha256:182c3e66995f0271f9d56294be6a04a16c0421a820c265534d6f34840837a1da", size = 37540, upload-time = "2025-10-08T09:54:22.458Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/da/fef49c82d26da3afdec8eaab3431bee3289e966a14444595e17dee045575/pyc3l-0.6.1-py3-none-any.whl", hash = "sha256:a4649c33eecf42499b287c252bb3c71d53c53d1b86e38ed26b386695f01f1b15", size = 37539, upload-time = "2026-09-13T14:01:38.137Z" },
 ]
 
 [[package]]
@@ -3216,7 +3214,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "click" },
-    { name = "pyc3l", specifier = ">=0.6.0" },
+    { name = "pyc3l", specifier = ">=0.6.1" },
     { name = "pyyaml" },
     { name = "sact-epoch" },
 ]

@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyc3l>=0.6.0",
+  "pyc3l>=0.6.1",
   "click",
   "sact.epoch",
   "pyyaml",
